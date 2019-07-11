@@ -1,0 +1,52 @@
+<!DOCTYPE generatorConfiguration
+		PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+		"http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+	<!-- 用来指定外部的属性元素 -->
+	<!-- resource 指定**classpath**下的属性文件-->
+	<!-- url 指定文件系统上的特定位置-->
+	<!--<properties resource="config.properties"/>-->
+	<!-- 指定驱动的路径 -->
+	<classPathEntry
+			location="D:\Maven\maven_repository\com\oracle\ojdbc6\11.2.0.1\ojdbc6-11.2.0.1.jar"/>
+
+	<context id="tables" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+		<property name="beginningDelimiter" value="`"/>
+		<property name="endingDelimiter" value="`"/>
+		<plugin type="tk.mybatis.mapper.generator.MapperPlugin">
+			<property name="mappers" value="com.dw.health.framework.mybatis.BaseMapper"/>
+			<property name="caseSensitive" value="true"/>
+			<property name="lombok" value="Getter,Setter,ToString,Accessors"/>
+		</plugin>
+
+		<!-- 不生成注释 -->
+		<commentGenerator>
+			<property name="suppressAllComments" value="true"/>
+			<property name="suppressDate" value="true"/>
+		</commentGenerator>
+
+		<jdbcConnection
+				driverClass="oracle.jdbc.driver.OracleDriver"
+				connectionURL="jdbc:oracle:thin:@10.1.60.21:1521:orcl"
+				userId="eportal"
+				password="eportal" >
+		</jdbcConnection>
+		<javaModelGenerator targetPackage="com.dw.health.eportal.entity"
+							targetProject="src/main/java">
+			<!--实体类的基类-->
+			<property name="rootClass" value="com.dw.health.framework.entity.BaseDO" />
+		</javaModelGenerator>
+
+		<sqlMapGenerator targetPackage="mapper"
+						 targetProject="src/main/resources"/>
+
+		<javaClientGenerator targetPackage="com.dw.health.eportal.dao"
+							 targetProject="src/main/java"
+							 type="XMLMAPPER"/>
+
+		<table tableName="test" schema="eportal">
+			<generatedKey column="id" sqlStatement="select sys_guid() from dual"/>
+		</table>
+	</context>
+</generatorConfiguration>

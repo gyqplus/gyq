@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100% !important;
+            position: relative;
+        }
+        /*设置分页导航沉底*/
+        .fixed-table-pagination {
+            position: absolute;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+<div class="dw-content">
+    <table id="commonTable" class="table table-striped table-hover text-nowrap">
+        <div id="toolbar">
+            <a class="btn btn-default" onclick='deleteSelectRows()'>删除选中</a>
+            <a class="btn btn-default" onclick='addDict()'>添加字典类型</a>
+            <a class="btn btn-default" onclick='addDict()'>$</a>
+        </div>
+
+    </table>
+</div>
+
+
+<script type="text/javascript">
+    //当前行
+    var curRow;
+    $(function () {
+        var oTable = new TableInit();
+        oTable.Init();
+    });
+
+    var TableInit = function () {
+        var oTableInit = new Object();
+        //初始化Table
+        oTableInit.Init = function () {
+            $('#commonTable').bootstrapTable({
+                editable: true,						//EdiTable
+                url: '${rc.contextPath}/dict/listDict',         //请求后台的URL（*）
+                method: 'POST',                      //请求方式（*）
+                toolbar: '#toolbar',                //工具按钮用哪个容器
+                checkbox: true,							//显示复选框
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: true,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                queryParams: oTableInit.queryParams,//传递参数（*）
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageSize: 8,                       //每页的记录行数（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                paginationVAlign: "bottom",
+                pageList: [2, 6, 8, 10, 12],        //可供选择的每页的行数（*）
+                search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                contentType: "application/x-www-form-urlencoded",
+                strictSearch: true,					//分页导航条位置
+                showColumns: true,                  //是否显示所有的列
+                showRefresh: true,                  //是否显示刷新按钮
+                //showFooter:true,
+                minimumCountColumns: 2,             //最少允许的列数
+                //clickToSelect: true,                //是否启用点击选中行
+                //height: 700,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                //showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                   //是否显示父子表
+                columns: [
+                    {field: 'checkbox', align: 'center', checkbox: true},
+                    {field: 'typeId', title: '类型', align: 'center'},
+                    {field: 'typeName', title: '类型名', align: 'center'},
+                    {field: 'remark', title: '备注', align: 'center'},
+                    {field: 'operate', title: '操作', align: 'center', formatter: operateFormatter}
+                ],
+                onClickRow: function (row, $element) {
+                    curRow = row;//
+                },
+                onLoadSuccess: function (aa, bb, cc) {
+                }
+
+            });
+        };
+
+        //得到查询的参数
+        oTableInit.queryParams = function (params) {
+            var temp;
+            temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                pageSize: params.limit,   			//页面大小
+                currentPage: params.offset / params.limit + 1
+            };
+            return temp;
+        };
+        return oTableInit;
+    };
+    //修改角色
+    function updateDict(id) {
+        layer.open({
+            title: '修改字典类型信息',
+            type: 2,
+            content: '${rc.contextPath}/dict/updateDictPage?id=' + id,
+            maxmin: true,
+            area: ['700px', '360px'],
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                $("#commonTable").bootstrapTable('refresh');
+            }
+        });
+    }
+    //修改角色
+    function showDictItem(id) {
+        layer.open({
+            title: '修改字典类型信息',
+            type: 2,
+            content: '${rc.contextPath}/dict/dictItemPage?id=' + id,
+            maxmin: true,
+            area: ['700px', '360px'],
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                $("#commonTable").bootstrapTable('refresh');
+            }
+        });
+    }
+    //添加角色
+    function addDict() {
+        layer.open({
+            type: 2,
+            title: '添加字典类型信息',
+            content: '${rc.contextPath}/dict/addDictPage',
+            area: ['700px', '360px'],
+            maxmin: true,
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                $("#commonTable").bootstrapTable('refresh');
+            }
+        });
+    }
+    //删除选中数据
+    function deleteSelectRows() {
+        var ids = new Array();//保存用户选择的数据的ID
+        var rows = $("#commonTable").bootstrapTable('getSelections');
+        if(rows.length == 0){
+            layer.msg("请勾选后删除!");
+            return;
+        }
+        //删除前确认
+        layer.confirm(
+         "确认?",
+         {icon: 2, title: "删除"},
+         function (index) {
+         layer.close(index);
+         for (var i = 0; i < rows.length; i++) {
+         ids.push(JSON.parse('{"typeId":"' + rows[i].typeId + '"}'));
+         }
+         ids = JSON.stringify(ids);
+         var data = new AjaxRequest("/dict/deleteDict", ids).json().execute();
+         $("#commonTable").bootstrapTable('refresh');
+         if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+         }
+         );
+    }
+    //删除单行数据
+    function deleteCurrentRow(id) {
+        layer.confirm(
+            "确认?",
+            {icon: 2, title: "删除"},
+            function (index) {
+                layer.close(index);
+                //确认后的逻辑
+                var ids = new Array();
+                ids.push(JSON.parse('{"typeId":"' + id + '"}'));
+                ids = JSON.stringify(ids);
+                var data = new AjaxRequest("/dict/deleteDict", ids).json().execute();
+                $("#commonTable").bootstrapTable('refresh');
+                if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+            }
+        );
+    }
+    //循环遍历结果集
+    //value: ?
+    //row:   当前行内容
+    //index: 当前行号
+    function operateFormatter(value, row, index) {//赋予的参数
+        return [
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="updateDict(\'' + row.typeId + '\')">编辑</a>',
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="deleteCurrentRow(\'' + row.typeId + '\')">删除</a>',
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="showDictItem(\'' + row.typeId + '\')">字典项</a>'
+        ].join('');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.RelUserRoleMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.RelUserRole">
+    <result column="USER_ROLE_ID" jdbcType="VARCHAR" property="userRoleId" />
+    <result column="USER_ID" jdbcType="VARCHAR" property="userId" />
+    <result column="ROLE_ID" jdbcType="VARCHAR" property="roleId" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="OPERATOR_ID" jdbcType="VARCHAR" property="operatorId" />
+    <result column="DELETE_FLAG" jdbcType="DECIMAL" property="deleteFlag" />
+    <result column="DELETE_TIME" jdbcType="TIMESTAMP" property="deleteTime" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+  </resultMap>
+  <update id="deleteRelUserRole" parameterType="com.dw.health.eportal.entity.User">
+    update EPORTAL.rel_user_role
+    set OPERATOR_ID = #{operatorId,jdbcType=VARCHAR},
+      DELETE_FLAG = #{deleteFlag,jdbcType=DECIMAL},
+      DELETE_TIME = #{deleteTime,jdbcType=TIMESTAMP}
+    where user_id = #{userId,jdbcType=VARCHAR}
+  </update>
+  <update id="deleteRelRoleUser" parameterType="com.dw.health.eportal.entity.Role">
+    update EPORTAL.rel_user_role
+    set OPERATOR_ID = #{operatorId,jdbcType=VARCHAR},
+    DELETE_FLAG = #{deleteFlag,jdbcType=DECIMAL},
+    DELETE_TIME = #{deleteTime,jdbcType=TIMESTAMP}
+    where role_id = #{roleId,jdbcType=VARCHAR}
+  </update>
+  <update id="logicDelete" parameterType="com.dw.health.eportal.entity.RelUserRole">
+    update EPORTAL.rel_user_role
+    set OPERATOR_ID = #{operatorId,jdbcType=VARCHAR},
+    DELETE_FLAG = #{deleteFlag,jdbcType=DECIMAL},
+    DELETE_TIME = #{deleteTime,jdbcType=TIMESTAMP}
+    where user_id = #{userId,jdbcType=VARCHAR}
+    and role_id = #{roleId,jdbcType=VARCHAR}
+  </update>
+</mapper>

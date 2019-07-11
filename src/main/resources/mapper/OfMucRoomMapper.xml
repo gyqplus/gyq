@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.OfMucRoomMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.openfire.Ofmucroom">
+    <id column="SERVICEID" jdbcType="DECIMAL" property="serviceid" />
+    <id column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="ROOMID" jdbcType="DECIMAL" property="roomid" />
+    <result column="CREATIONDATE" jdbcType="CHAR" property="creationdate" />
+    <result column="MODIFICATIONDATE" jdbcType="CHAR" property="modificationdate" />
+    <result column="NATURALNAME" jdbcType="VARCHAR" property="naturalname" />
+    <result column="DESCRIPTION" jdbcType="VARCHAR" property="description" />
+    <result column="LOCKEDDATE" jdbcType="CHAR" property="lockeddate" />
+    <result column="EMPTYDATE" jdbcType="CHAR" property="emptydate" />
+    <result column="CANCHANGESUBJECT" jdbcType="DECIMAL" property="canchangesubject" />
+    <result column="MAXUSERS" jdbcType="DECIMAL" property="maxusers" />
+    <result column="PUBLICROOM" jdbcType="DECIMAL" property="publicroom" />
+    <result column="MODERATED" jdbcType="DECIMAL" property="moderated" />
+    <result column="MEMBERSONLY" jdbcType="DECIMAL" property="membersonly" />
+    <result column="CANINVITE" jdbcType="DECIMAL" property="caninvite" />
+    <result column="ROOMPASSWORD" jdbcType="VARCHAR" property="roompassword" />
+    <result column="CANDISCOVERJID" jdbcType="DECIMAL" property="candiscoverjid" />
+    <result column="LOGENABLED" jdbcType="DECIMAL" property="logenabled" />
+    <result column="SUBJECT" jdbcType="VARCHAR" property="subject" />
+    <result column="ROLESTOBROADCAST" jdbcType="DECIMAL" property="rolestobroadcast" />
+    <result column="USERESERVEDNICK" jdbcType="DECIMAL" property="usereservednick" />
+    <result column="CANCHANGENICK" jdbcType="DECIMAL" property="canchangenick" />
+    <result column="CANREGISTER" jdbcType="DECIMAL" property="canregister" />
+    <result column="ALLOWPM" jdbcType="DECIMAL" property="allowpm" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    SERVICEID, NAME, ROOMID, CREATIONDATE, MODIFICATIONDATE, NATURALNAME, DESCRIPTION, 
+    LOCKEDDATE, EMPTYDATE, CANCHANGESUBJECT, MAXUSERS, PUBLICROOM, MODERATED, MEMBERSONLY, 
+    CANINVITE, ROOMPASSWORD, CANDISCOVERJID, LOGENABLED, SUBJECT, ROLESTOBROADCAST, USERESERVEDNICK, 
+    CANCHANGENICK, CANREGISTER, ALLOWPM
+  </sql>
+
+  <select id="getNextRoomId" resultType="java.lang.Integer">
+    SELECT ROOMID+1 ROOMID FROM (SELECT ROOMID FROM OPENFIRE.OFMUCROOM  ORDER BY ROOMID DESC) WHERE ROWNUM=1
+
+  </select>
+
+  <select id="getRoomByRoomId" parameterType="java.lang.Integer" resultType="com.dw.health.eportal.entity.openfire.Ofmucroom">
+    SELECT
+    <include refid="Base_Column_List"/>
+     FROM OPENFIRE.OFMUCROOM
+    WHERE ROOMID = #{roomId}
+  </select>
+
+</mapper>

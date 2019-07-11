@@ -1,0 +1,185 @@
+<#include "${rc.contextPath}/base.ftl">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+</head>
+<body>
+<div class="container-fluid" style="height: 100vh;">
+    <div class="table-responsive" style="max-height: 90%;">
+        <div id="toolbar">
+            <a class="btn btn-default" onclick="addUser()">添加用户</a>
+            <a class="btn btn-default" onclick="deleteSelectUsers()">删除选中</a>
+        </div>
+        <table id="table"></table>
+    </div>
+</div>
+<script>
+    var $table = $('#table');
+
+    function initTable() {
+        $table.bootstrapTable({
+            classes: 'table table-hover table-striped table-condensed text-nowrap',
+            url: '${rc.contextPath}/user/getUserList',
+            method: 'post',
+            cache: false,
+            contentType: 'application/x-www-form-urlencoded',
+            queryParams: queryParams,
+            queryParamsType: 'page',
+            pagination: true,
+            sidePagination: 'server',
+            pageList: [5, 10, 25, 50],
+            showColumns: true,
+            showRefresh: true,
+            toolbar: '#toolbar',
+            columns: [
+                {
+                    checkbox: true
+                }, {
+                    field: 'userId',
+                    title: '用户编号',
+                    align: 'center'
+                }, {
+                    field: 'realName',
+                    title: '姓名',
+                    align: 'center'
+                }, {
+                    field: 'sex',
+                    title: '性别',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var content = <@dw.selectMap code="sex"></@dw.selectMap>[value];
+                        if (content) {
+                            return content;
+                        }
+                        return null;
+                    }
+                }, {
+                    field: 'idCard',
+                    title: '身份证号',
+                    align: 'center'
+                }, {
+                    field: 'phone',
+                    title: '座机号',
+                    align: 'center'
+                }, {
+                    field: 'mphone',
+                    title: '手机号',
+                    align: 'center'
+                }, {
+                    field: 'mphone',
+                    title: '手机号',
+                    align: 'center'
+                }, {
+                    field: 'mail',
+                    title: '邮箱',
+                    align: 'center'
+                }, {
+                    field: 'orgId',
+                    title: '科室',
+                    align: 'center'
+                }, {
+                    field: 'locked',
+                    title: '账户锁定',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var content = <@dw.selectMap code="locked"></@dw.selectMap>[value];
+                        if (content) {
+                            return content;
+                        }
+                        return null;
+                    }
+                }, {
+                    field: 'operate',
+                    title: '操作',
+                    align: 'center',
+                    formatter: operateFormatter,
+                    events: window.operateEvents
+                }
+            ]
+        });
+    }
+
+    function queryParams(params) {
+        return params;
+    }
+
+    function operateFormatter(value, row, index) {
+        return [
+            '<a class="btn btn-primary btn-xs modify" style="margin-right: 3px;">编辑</a>',
+            '<a class="btn btn-default btn-xs delete" style="margin-right: 3px;">删除</a>',
+            '<a class="btn btn-primary btn-xs alloc">分配角色</a>'
+        ].join('');
+    }
+
+    function getSelectIds() {
+        return $.map($table.bootstrapTable('getSelections'), function (row) {
+            return {userId: row.userId};
+        })
+    }
+
+    function addUser() {
+        layer.full(layer.open({
+            type: 2,
+            title: '添加用户',
+            content: '${rc.contextPath}/user/addUserPage',
+            area: ['800px', '480px']
+        }));
+    }
+
+    function deleteSelectUsers() {
+        var ids = getSelectIds();
+        if (ids.length < 1) {
+            layer.alert('未选中任何用户');
+            return false;
+        }
+        layer.confirm('是否删除选中的用户', function (index) {
+            layer.close(index);
+            var result = new AjaxRequest('${rc.contextPath}/user/deleteUser', JSON.stringify(ids)).json().execute();
+            if (result) {
+                layer.msg(result, {icon: 1});
+                $table.bootstrapTable('refresh');
+            }
+        });
+    }
+
+    window.operateEvents = {
+        'click .modify': function (e, value, row, index) {
+            layer.full(layer.open({
+                type: 2,
+                title: '修改用户信息',
+                content: '${rc.contextPath}/user/updateUserPage?id=' + row.userId,
+                area: ['800px', '480px']
+            }));
+        },
+        'click .delete': function (e, value, row, index) {
+            var id = {
+                userId: row.userId
+            };
+            layer.confirm('是否删除选中的用户', function (index) {
+                layer.close(index);
+                var result = new AjaxRequest('${rc.contextPath}/user/deleteUser', JSON.stringify(id)).json().execute();
+                if (result) {
+                    layer.msg(result, {icon: 1});
+                    $table.bootstrapTable('refresh');
+                }
+            });
+        },
+        'click .alloc': function (e, value, row, index) {
+            layer.full(layer.open({
+                type: 2,
+                title: '分配角色',
+                content: '${rc.contextPath}/user/distributeRolePage?id=' + row.userId,
+                area: ['800px', '480px']
+            }));
+        }
+    };
+
+    $(function () {
+        initTable();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.RelRolePermissionMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.RelRolePermission">
+    <id column="ROLE_PERM_ID" jdbcType="VARCHAR" property="rolePermId" />
+    <result column="ROLE_ID" jdbcType="VARCHAR" property="roleId" />
+    <result column="PERM_ID" jdbcType="VARCHAR" property="permId" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="OPERATOR_ID" jdbcType="VARCHAR" property="operatorId" />
+    <result column="DELETE_FLAG" jdbcType="DECIMAL" property="deleteFlag" />
+    <result column="DELETE_TIME" jdbcType="TIMESTAMP" property="deleteTime" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ROLE_PERM_ID, ROLE_ID, PERM_ID, CREATE_TIME, MODIFY_TIME, OPERATOR_ID, DELETE_FLAG, 
+    DELETE_TIME, HOSPITAL_ID
+  </sql>
+  <update id="deleteRelRolePermission" parameterType="com.dw.health.eportal.entity.Role">
+    update EPORTAL.REL_ROLE_PERMISSION
+    set OPERATOR_ID = #{operatorId,jdbcType=VARCHAR},
+    DELETE_FLAG = #{deleteFlag,jdbcType=DECIMAL},
+    DELETE_TIME = #{deleteTime,jdbcType=TIMESTAMP}
+    where ROLE_ID = #{roleId,jdbcType=VARCHAR}
+  </update>
+  <update id="deleteRelPermissionRole" parameterType="com.dw.health.eportal.entity.Permission">
+    update EPORTAL.REL_ROLE_PERMISSION
+    set OPERATOR_ID = #{operatorId,jdbcType=VARCHAR},
+    DELETE_FLAG = #{deleteFlag,jdbcType=DECIMAL},
+    DELETE_TIME = #{deleteTime,jdbcType=TIMESTAMP}
+    where PERM_ID = #{permId,jdbcType=VARCHAR}
+  </update>
+  <update id="logicDelete" parameterType="com.dw.health.eportal.entity.RelRolePermission">
+    update EPORTAL.REL_ROLE_PERMISSION
+    set OPERATOR_ID = #{operatorId,jdbcType=VARCHAR},
+    DELETE_FLAG = #{deleteFlag,jdbcType=DECIMAL},
+    DELETE_TIME = #{deleteTime,jdbcType=TIMESTAMP}
+    where PERM_ID = #{permId,jdbcType=VARCHAR}
+    and ROLE_ID = #{roleId,jdbcType=VARCHAR}
+  </update>
+
+</mapper>

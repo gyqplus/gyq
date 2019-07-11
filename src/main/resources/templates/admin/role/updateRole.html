@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style type="text/css">
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    </style>
+</head>
+
+<body style="overflow-x: hidden;">
+<div class="content" style="padding:50px 0 50px 0;">
+    <form action="" method="post" id="myform" class="form-horizontal "
+          role="form" style="/*background-color: #500a6f*/">
+        <div class="form-group row">
+            <div class="left col-xs-3 text-right">
+                <label for="">角色名:</label>
+            </div>
+            <div class="right col-xs-8 text-left">
+                <input autocomplete="off" type="text" class="form-control" id="roleFlag" name="roleFlag"
+                       placeholder="请输入角色标志" value="${role.roleFlag!}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="left col-xs-3 text-right">
+                <label for="">角色描述:</label>
+            </div>
+            <div class="right col-xs-8 text-left">
+                <input autocomplete="off" type="text" class="form-control" id="roleDescription" name="roleDescription"
+                       placeholder="请输入角色名" value="${role.roleDescription!}">
+            </div>
+        </div>
+        <div class="dw-bottom-0">
+            <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var param = {roleId: '${role.roleId}'};
+        new AjaxForm("#myform", "/role/updateRole", param, formCallback).execute();
+    });
+</script>
+</body>
+</html>

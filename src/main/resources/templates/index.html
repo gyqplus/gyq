@@ -1,0 +1,372 @@
+<!doctype html>
+<html>
+<head>
+    <title>互联互通平台</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" type="text/css" href="${rc.contextPath}/public/style/indexStyle.css"/>
+    <link rel="stylesheet" type="text/css" href="${rc.contextPath}/public/layim/css/layui.css"/>
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <script type="text/javascript" src="${rc.contextPath}/public/js/strophe.min.js"></script>
+    <script type="text/javascript" src="${rc.contextPath}/public/layim/layui.js"></script>
+    <script type="text/javascript" src="${rc.contextPath}/public/js/openfireLink.js"></script>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-default header">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <div class="logo_icon"><span>互联互通平台</span></div>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right nav-ul">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle nav-a" data-toggle="dropdown" role="button"
+                           aria-haspopup="true" aria-expanded="false">用户 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">个人信息</a></li>
+                            <li><a href="#" onclick="updatePassword();">修改密码</a></li>
+                            <li><a href="${rc.contextPath}/admin/">维护管理</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="${rc.contextPath}/logout">退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class=" col-md-4 col-div">
+            <div class="panel">
+                <div class="panel-heading panelhead">
+                    <ul class="breadcrumb panel-ul">
+                        <li><span id="business" class="on">业务应用</span></li>
+                        <li><span id="office">办公应用</span></li>
+                        <li><span id="favorite">收藏应用</span></li>
+                    </ul>
+                </div>
+                <div id="summary" class="panel-body panel-lg">
+                    <ul id="appList" class="ul-app">
+                        <li><a href="#">
+                            <div class="yingyong">
+                                <div class="yingyong_image"></div>
+                                <div class="yingyong_title ">护士站</div>
+                            </div>
+                        </a></li>
+                    </ul>
+                    <div class="prev">
+                        <div id="nextPage">下一页</div>
+                    </div>
+                    <div class="next">
+                        <div id="prevPage">上一页</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class=" col-md-4 col-div">
+            <div class="panel">
+                <div class="panel-heading panelhead">
+                    <span>待办事项</span>
+                    <a class="pull-right" onclick="openModal()"> 查看更多>></a>
+                </div>
+                <div class="panel-body panel-sm panel-list">
+                    <ul id="backlog">
+                    </ul>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-heading panelhead">
+                    <span>新闻动态</span>
+                    <a class="pull-right" onclick="resource_add_edit()"> 查看更多>></a>
+                </div>
+                <div class="panel-body panel-sm panel-list">
+                    <ul id="news"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-div">
+            <div class="panel">
+                <div class="panel-heading panelhead">
+                    <span>通讯录</span>
+                </div>
+                <div class="panel-body panel-sm">
+                    <div class="txl_search"><input id="searchInput" type="text" placeholder="可输入员工编号、姓名、手机号查询"
+                                                   name="search_content"/>
+                    </div>
+                    <div class="txl_search_content">
+                        <div class="txl_search_result" id="searchReasult">
+                        </div>
+                        <div class="txl_search_reset" id="txl_search_reset">清除搜索历史</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-heading panelhead">
+                    <span>会议室</span>
+                </div>
+                <div class="panel-body panel-sm">
+                    <ul>
+                        <li><span
+                                class="hys_zt_nouse">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>301</span><span>现在空闲</span><span>14:00-15:00</span><span>会议主题</span>
+                        </li>
+                        <li><span
+                                class="hys_zt_use">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>401</span><span>正在使用</span><span>14:00-15:00</span><span>会议主题</span>
+                        </li>
+                        <li><span
+                                class="hys_zt_nouse">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>501</span><span>现在空闲</span><span>14:00-15:00</span><span>会议主题</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden"  value="false" id="addFriend_flag">
+<script type="text/javascript">
+    var pageSize = 12;
+    var currentPage = 1;
+    var type = 1;
+    var appsCount = 0;
+    var param;
+    var userId;
+    var user;
+
+
+    /**
+     * 按类型/用户 获取后台应用总数
+     * @param type
+     * @param currentPage
+     */
+    function getAppsCount(type, userId) {
+        var param = {
+            type: type,
+            userId: userId
+        };
+        var data = new AjaxRequest("/application/countAppByType", param).execute();
+        if (data == null) {
+            return;
+        } else {
+            appsCount = data.appsCount;
+        }
+
+    }
+    //通用加载应用方式
+    function loadApp(type, currentPage, userId) {
+        var param = {
+            pageSize: pageSize,
+            currentPage: currentPage,
+            type: type,
+            userId: userId
+        };
+        $("#appList").empty();
+        var apps = new AjaxRequest("/application/listAppByType", param).execute();
+        for (var i = 0; i < apps.length; i++) {
+            $("#appList").append("<li><a href='" + apps[i]['url'] + "' target='_blank'> " +
+                "<div class=\"yingyong \"> " +
+                "<div class=\"yingyong_image\" style=\"background: url(" + apps[i]['iconBase64'] + ") center 80% no-repeat \">" +
+                "</div> " +
+                "<div class=\"yingyong_title\">" + apps[i]['appName'] +
+                "</div> " +
+                "</div> " +
+                "</a>" +
+                "</li>");
+        }
+    }
+    //加载待办事项 等与用户相关的通知事项
+    function loadBacklog(domId, userId, limit) {
+        var param = {
+            userId: userId,
+            limit: limit
+        }
+        var backlog = new AjaxRequest("/homePage/getSchedule", param).execute();
+        $(domId).empty();
+        for (var i = 0; i < backlog.length; i++) {
+            $("#backlog").append("<li><a href=\"" + backlog[i].url + "\"> " + backlog[i].title + " <div class=\"time-right\">" + backlog[i].dotime + "</div></li>");
+        }
+    }
+
+    //加载新闻动态 与无用户相关的通知事项
+    function loadNotification(domId, type, limit) {
+        var param = {
+            type: type,
+            limit: limit
+        }
+        var backlog = new AjaxRequest("/homePage/getMessage", param).execute();
+        $(domId).empty();
+        for (var i = 0; i < backlog.length; i++) {
+            $(domId).append("<li><a href=\"" + backlog[i].url + "\"> " + backlog[i].title + " <div class=\"time-right\">" + backlog[i].dotime + "</div></li>");
+        }
+    }
+    //通讯录查询
+    function searchUser(searchStr) {
+        param = {keyword: $("#searchInput").val()};
+        var users = new AjaxRequest(searchStr, param).execute();
+        return users;
+    }
+    //通讯录查询(点击历史记录)
+    function searchUserByHistory(historyStr) {
+        $("#searchInput").val(historyStr);
+        var e = $.Event('keyup');
+        e.keyCode = 13;
+        $('#searchInput').trigger(e);
+    }
+    //通讯录查询历史查询
+    function loadSearchHistory() {
+        var searchHistories = new AjaxRequest("/user/findUserSearchHistory", null).execute();
+        $("#searchReasult").empty();
+        $("#searchReasult").append("<ul id = \"resultUl\"></ul>");
+        for (i in searchHistories) {
+            $("#resultUl").append("<div onclick='searchUserByHistory(this.innerText)' style='background-color: #eef0e9;border-radius: 5px 5px;margin: 5px;padding: 2px 5px;float: left;'>" + searchHistories[i] + "</div>");
+        }
+    }
+    //通讯录查询历史添加
+    function addSearchHistory() {
+        var param = {
+            searchHistoryStr: $("#searchInput").val()
+        };
+        var result = new AjaxRequest("/user/addUserSearchHistory", param).execute();
+    }
+    //清空查询历史记录
+    function resetSearchHistory() {
+        var result = new AjaxRequest("/user/deleteUserSearchHistory", null).execute();
+    }
+    //修改页面
+    function updatePassword() {
+        var index = layer.open({
+            type: 2,
+            title: '修改密码',
+            content: '${rc.contextPath}/user/updatePasswordPage',
+            maxmin: true,
+            shade: 0,
+            area: ['700px', '360px'],
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                if ('true' == $('#layer_refresh').val()) {
+                    $('#layer_refresh').val('');
+                    $("#commonTable").bootstrapTable('refresh');
+                }
+            }
+        });
+      //  layer.full(index);
+    }
+    //页面初始化
+    $(document).ready(function () {
+        /*-------------------------------获取当前userid start----------------*/
+        user = new AjaxRequest("/user/getCurrentUser", null).execute();
+        userId = user.userId;
+        /*-------------------------------获取当前userid end------------------*/
+
+        /*-------------------------------app导航 start------------------*/
+        //获取后台应用总数
+        //appsCount = getAppsCount(type);
+        getAppsCount(type);
+        //初始加载 业务应用
+        loadApp(type, currentPage, null);
+        //业务应用加载
+        $("#business").click(function () {
+            currentPage = 1;
+            type = 1;
+            getAppsCount(type, null);
+            loadApp(type, currentPage, null);
+            $("#business").addClass("on");
+            $("#office").removeClass("on");
+            $("#favorite").removeClass("on");
+        });
+        //办公应用加载
+        $("#office").click(function () {
+            currentPage = 1;
+            type = 2;
+            getAppsCount(type, null);
+            loadApp(type, currentPage, null);
+            $("#office").addClass("on");
+            $("#business").removeClass("on");
+            $("#favorite").removeClass("on");
+        });
+        //收藏应用加载
+        $("#favorite").click(function () {
+            currentPage = 1;
+            type = 3;
+            getAppsCount(type, userId);
+            loadApp(type, currentPage, userId);
+            $("#favorite").addClass("on");
+            $("#business").removeClass("on");
+            $("#office").removeClass("on");
+        });
+        //下一页
+        $("#nextPage").click(function () {
+            if (currentPage * 15 > appsCount) {
+                currentPage = 1;
+            } else {
+                currentPage++;
+            }
+            loadApp(type, currentPage, userId);
+        });
+        //上一页
+        $("#prevPage").click(function () {
+            if (currentPage == 1) {
+                currentPage = Math.ceil(appsCount / 15);
+            } else {
+                currentPage--;
+            }
+            loadApp(type, currentPage, userId);
+        });
+        /*----------------------------app导航 end----------------------------*/
+
+        /*----------------------------通知类 start --------------------------*/
+        //加载待办事项
+        loadBacklog("#backlog", userId, 5);
+        //加载新闻动态
+        loadNotification("#news", 2, 5);
+        //加载通知公告
+        loadNotification("#notice", 3, 5);
+        /*----------------------------通知类 end   --------------------------*/
+        /*----------------------------通讯录 start --------------------------*/
+        //初始化通讯录查询结果框
+        scroll("#searchReasult");
+        //scroll("li");
+        //加载搜索历史
+        loadSearchHistory();
+        //通讯录查询并添加历史记录
+        $("#searchInput").keyup(function (envent) {
+            if (envent.keyCode == 13 && $("#searchInput").val().length != 0) {
+                $("#searchReasult").empty();
+                $("#searchReasult").append("<ul id = \"resultUl\"></ul>");
+                var users = searchUser("/user/getUsersByKeywords");
+                addSearchHistory();
+                for (i in users) {
+                    //console.log(users[i].userName);
+                    var user = users[i];
+                    $("#resultUl").append("<li><div><img src=\"${rc.contextPath}/public/images/icon_mzhs.png\"></div><lable>" + user.userName + "</lable><lable>" + user.dept + "</lable><lable>" + user.mphone + "</lable><lable>" + user.mail + "</lable></li>");
+                }
+            }
+            if ($("#searchInput").val() == null || $("#searchInput").val() == "") {
+                $("#searchReasult").empty();
+                loadSearchHistory();
+            }
+        });
+        //清空查询历史
+        $("#txl_search_reset").click(function () {
+            resetSearchHistory();
+            loadSearchHistory();
+        });
+
+
+        /*----------------------------通讯录 end   --------------------------*/
+        /*----------------------------右上角功能 start   --------------------------*/
+
+
+
+
+        /*----------------------------右上角功能 end   --------------------------*/
+
+    });
+
+</script>
+</body>
+</html>

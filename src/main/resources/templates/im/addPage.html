@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>添加</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" type="text/css" href="${rc.contextPath}/public/style/indexStyle.css"/>
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        lable {
+            padding-right: 10px;
+        }
+
+        #resultUl {
+            list-style: none;
+            margin-left: 0px;
+            margin-top: 10px;
+            padding: 0px;
+        }
+
+        #resultUl li {
+            border-bottom: 1px solid #999999;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            width: 520px;
+        }
+    </style>
+</head>
+<body>
+<div style="margin: 5px;">
+    <ul id="myTab" class="nav nav-tabs">
+        <li class="active"><a href="#addFriend" data-toggle="tab">查找好友</a></li>
+        <li><a href="#addGroup" data-toggle="tab">创建群组</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade in active" id="addFriend">
+            <div class="panel">
+                <div class="panel-body panel-md" style="height: 418px;">
+                    <div class="txl_search">
+                        <input id="searchInput" type="text" placeholder="可输入员工编号、姓名、手机号查询"
+                        autocomplete="off" name="search_content"/>
+                    </div>
+                    <div class="txl_search_content" >
+                        <div class="txl_search_result" id="searchReasult"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="addGroup">
+            <div class="panel">
+                <div class="panel-body panel-md"style="height: 418px;">
+                    <form method="post" id="myform" role="form" style="white-space:nowrap;">
+                        <div class="form-inline row" style="margin-bottom:8px;">
+                            <div class="form-group row col-xs-10">
+                                <div class="left col-xs-3 text-right">
+                                    <label for="userName">群聊名称:</label>
+                                </div>
+                                <div class="left col-xs-9 text-left">
+                                    <input autocomplete="off" type="text" class="form-control" id="roomName" name="roomName"
+                                           placeholder="群聊名称">
+                                </div>
+                                <input type="hidden" id="userName" name="userName" value="${userName}">
+                                <div>
+                                    <button id="submit" type="submit" class="btn btn-primary">创建</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    // XMPP服务器配置
+    var OpenfireConfigure = getOpenfireConfigure();
+    // nginx服务器配置
+    var NginxConfig = getNginxConfig();
+
+    //获取openfire配置
+    function getOpenfireConfigure() {
+        var openfireConfigure = new AjaxRequest("/op/configure", null).execute();
+        return openfireConfigure;
+    }
+    //获取nginx配置
+    function getNginxConfig() {
+        var nginxConfig = new AjaxRequest("/nginx/getNginxConfig", null).execute();
+        return nginxConfig;
+    }
+    $(function () {
+        $('#submit').click(function () {
+            var data = new AjaxForm("#myform", "${rc.contextPath}/op/createChatRoom", {}, loadGroup).execute();
+            console.log(data);
+        });
+
+    });
+
+    function loadGroup() {
+        parent.$('.layui-layer-page').remove();
+        window.parent.loadIm(false);
+    }
+    //加好友
+    function addFriend(friendName, friendRealName, groupName) {
+        var mineName = '${userName}';
+        var data = {
+            userName: mineName,
+            friendName: friendName,
+            friendRealName: friendRealName,
+            groupName: groupName
+        };
+        var result = new AjaxRequest("/op/addRoster", data, null).execute();
+        layer.msg(result);
+        parent.$('.layui-layer-page').remove();
+        window.parent.loadIm(false);
+
+    }
+    //添加的
+    /*----------------------------通讯录 start --------------------------*/
+    //通讯录查询并添加历史记录
+    $("#searchInput").keyup(function (envent) {
+        if (envent.keyCode == 13 && $("#searchInput").val().length != 0) {
+            $("#searchReasult").empty();
+            $("#searchReasult").append("<ul id = \"resultUl\"></ul>");
+            var users = searchUser("/user/getUsersByKeywords");
+            for (i in users) {
+                //console.log(users[i].userName);
+                var user = users[i];
+                $("#resultUl").append('<li>' +
+                    '<lable>' +
+                    '   <img style="width: 40px;height: 40px;border-radius: 100%" src= "' + NginxConfig.avatar_url + user.avatar +'">' +
+                    '</lable>' +
+                    '<lable>' + user.userName + '</lable>' +
+                    '<lable>' + user.realName + '</lable>' +
+                    '<lable>' + <@dw.selectMap code='sex'></@dw.selectMap>[user.sex] + '</lable>' +
+                    '<lable>' + user.deptName + '</lable>' +
+                    '<lable>' + user.mphone +'</lable>' +
+                    '<lable>' + user.mail + '</lable>' +
+                    '<lable style="float: right;cursor:pointer;">' +
+                    '   <i class="fa fa-address-book-o fa-2x" aria-hidden="true" onclick="addFriend(\'' + user.userName +'\',\''+user.realName+'\',\''+user.deptName+'\')"></i>'+'&nbsp;&nbsp;&nbsp;'+
+                    '<i class="fa fa-envelope-o fa-2x" aria-hidden="true" onclick="chat(\'' + user.userName +'\',\''+user.realName+'\',\''+NginxConfig.avatar_url+user.avatar+'\')"></i>'+
+                    '</lable>' +
+                    '</li>');
+            }
+        }
+        if ($("#searchInput").val() == null || $("#searchInput").val() == "") {
+            $("#searchReasult").empty();
+        }
+    });
+
+    function chat(userName,realName,avatar){
+        parent.layui.layim.chat({
+            name: realName //名称
+            ,type: 'friend' //聊天类型
+            ,avatar: avatar //头像
+            ,id: userName //好友id
+        })
+    }
+
+    //通讯录查询
+    function searchUser(searchStr) {
+        param = {keyword: $("#searchInput").val()};
+        var users = new AjaxRequest(searchStr, param).execute();
+        return users;
+    }
+    /*----------------------------通讯录 end   --------------------------*/
+
+
+</script>
+</body>
+</html>

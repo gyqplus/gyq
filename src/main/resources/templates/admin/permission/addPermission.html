@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style type="text/css">
+
+    </style>
+</head>
+
+<body style="overflow-x: hidden;">
+<div>
+    <div class="content" style="margin: 20px;">
+        <form method="post" id="myform" role="form">
+            <div class="form-group row">
+                <div class="left col-xs-3 text-right">
+                    <label for="">权限名:</label>
+                </div>
+                <div class="right col-xs-8 text-left">
+                    <input autocomplete="off" type="text" class="form-control" id="permFlag" name="permFlag"
+                           placeholder="请输入权限名">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="left col-xs-3 text-right">
+                    <label for="">权限描述:</label>
+                </div>
+                <div class="right col-xs-8 text-left">
+                    <input autocomplete="off" type="text" class="form-control" id="permDescription"
+                           name="permDescription"
+                           placeholder="请输入权限描述">
+                </div>
+            </div>
+            <div class="dw-bottom-0">
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        new AjaxForm("#myform", "/perm/addPermission", null, formCallback).execute();
+    });
+</script>
+</body>
+</html>

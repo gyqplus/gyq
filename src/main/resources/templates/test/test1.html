@@ -1,0 +1,106 @@
+<#include "${rc.contextPath}/base.ftl">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<@base></@base>
+<@table></@table>
+    <title>测试一</title>
+</head>
+<body>
+<div class="table-responsive" style="width: 100%;height: 90vh;">
+    <div id="toolbar" style="padding-left: 10px;">
+        <a class="btn btn-default" onclick="test1()">删除选中</a>
+        <a class="btn btn-default">添加菜单</a>
+    </div>
+    <table id="table"></table>
+</div>
+<script type="text/javascript">
+    var $table = $('#table');
+
+    function initTable() {
+        $table.bootstrapTable({
+            classes: 'table table-bordered table-hover table-striped text-nowrap',
+            url: '${rc.contextPath}/nav/getNavListByPid',
+            method: 'post',
+            cache: false,
+            contentType: 'application/x-www-form-urlencoded',
+            queryParams: queryParams,
+            queryParamsType: 'page',
+            pagination: true,
+            sidePagination: 'server',
+            pageList: [5, 10, 25, 50],
+            showColumns: true,
+            showRefresh: true,
+            toolbar: '#toolbar',
+            columns: [{
+                checkbox: true
+            }, {
+                field: 'navId',
+                title: '编号',
+                align: 'center'
+            }, {
+                field: 'name',
+                title: '菜单名',
+                align: 'center'
+            }, {
+                field: 'createTime',
+                title: '创建时间',
+                align: 'center'
+
+            }, {
+                field: 'operatorName',
+                title: '操作员',
+                align: 'center'
+            }, {
+                field: 'operate',
+                title: '操作',
+                align: 'center',
+                formatter: operateFormatter //自定义方法，添加操作按钮
+            }, {
+                filed: 'xb',
+                title: '性别',
+                align: 'center',
+                editable: {
+                    autotext: 'always',
+                    emptytext: '空',
+                    mode: 'inline',
+                    type: 'select',
+                    title: '部门',
+                    source: [{value: "1", text: "研发部"}, {value: "2", text: "销售部"}, {value: "3", text: "行政部"}]
+                }
+            }]
+        });
+    }
+
+    function queryParams(params) {
+        params.pid = '0';
+        params.currentPage = params.pageNumber;
+        return params;
+    }
+
+    function getIdSelections() {
+        return $.map($table.bootstrapTable('getSelections'), function (row) {
+            return row.navId
+        })
+    }
+
+    function test1() {
+    }
+
+
+    function operateFormatter(value, row, index) {//赋予的参数
+        return [
+            '<a class="btn btn-primary btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="updateNav(\'' + row.navId + '\')">编辑</a>',
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" href="#">档案</a>',
+            '<a class="btn btn-primary btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="deleteCurrentRow(\'' + row.navId + '\')">删除</a>',
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="layer.alert(\'已存入\', {icon: 1});"});">准入</a>'
+        ].join('');
+    }
+
+    $(function () {
+        initTable();
+    });
+</script>
+</body>
+</html>

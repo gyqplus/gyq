@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style type="text/css">
+
+    </style>
+</head>
+
+<body style="overflow-x: hidden;">
+<div>
+    <div class="content" style="margin: 20px;">
+        <form method="post" id="myform" role="form">
+            <div class="form-group row">
+                <div class="left col-xs-3 text-right">
+                    <label for="">部门名称:</label>
+                </div>
+                <div class="right col-xs-8 text-left">
+                    <input autocomplete="off" type="text" class="form-control" id="name" name="name"
+                           placeholder="请输入部门名称">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="left col-xs-3 text-right">
+                    <label for="">部门类型:</label>
+                </div>
+                <div class="right col-xs-8 text-left">
+                    <input autocomplete="off" type="text" class="form-control" id="type" name="type"
+                           placeholder="请输入部门类型">
+                </div>
+            </div>
+            <div class="form-group text-center submit">
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var param = {pid: '${pid}'};
+        new AjaxForm("#myform", "/dept/saveDept", param, formCallback).execute();
+    });
+</script>
+</body>
+</html>

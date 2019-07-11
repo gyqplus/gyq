@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+</head>
+
+<body>
+<input type="hidden" id="layer_refresh">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 col-xs-6 col-sm-6"
+             style="height: 100vh;overflow: auto;text-align: center;padding-top:5px;border-right: 1px solid #e7ebee;">
+            <table id="dictTable" class="table table-striped table-hover text-nowrap">
+                <div id="toolbar1" style="padding-left:8px;">
+                    <@shiro.hasPermission name="admin:write">
+                        <a class="btn btn-default" onclick='deleteSelectDict()'>
+                            <i class="fa fa-minus fa-1x" aria-hidden="true"></i>
+                            <span>删除</span>
+                        </a>
+                        <a class="btn btn-default" onclick='addDict()'>
+                            <i class="fa fa-plus fa-1x" aria-hidden="true"></i>
+                            <span>新增</span>
+                        </a>
+                   </@shiro.hasPermission>
+                </div>
+
+            </table>
+        </div>
+        <div class="col-md-6 col-xs-6 col-sm-6"
+             style="height: 100vh;overflow: auto;text-align: center;padding-top:5px;">
+            <div class="table-responsive" style="height: 90%;">
+                <table id="dictItemTable" class="table table-striped table-hover text-nowrap">
+                    <div id="toolbar2" style="padding-left:8px;">
+                        <@shiro.hasPermission name="admin:write">
+                            <a class="btn btn-default" onclick='deleteSelectDictItem()'>
+                                <i class="fa fa-minus fa-1x" aria-hidden="true"></i>
+                                <span>删除</span>
+                            </a>
+                            <a class="btn btn-default" onclick='addDictItem(typeId)'>
+                                <i class="fa fa-plus fa-1x" aria-hidden="true"></i>
+                                <span>新增</span>
+                            </a>
+                        </@shiro.hasPermission>
+                    </div>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //当前行
+    var typeId;
+    //选中行
+    var select_rows1 = new Array();
+    var select_rows2 = new Array();
+    var paramAdded = {};
+
+    $(function () {
+        var oTable1 = new TableInit($("#dictTable"), '${rc.contextPath}/dict/listDict', columnsDict, paramAdded, '#toolbar1');
+        oTable1.Init();
+        var oTable2 = new TableInit($("#dictItemTable"), '${rc.contextPath}/dictItem/listDictItem', columnsDictItem, null, '#toolbar2');
+        oTable2.Init();
+        $('.search input').attr('placeholder', '请输入类型名');
+    });
+    var columnsDict = [
+        {field: 'checkbox', align: 'center', checkbox: true},
+        {field: 'typeId', title: '类型', align: 'center'},
+        {field: 'typeName', title: '类型名', align: 'center'},
+        {field: 'remark', title: '备注', align: 'center'},
+        {field: 'operate', title: '操作', align: 'center', formatter: operateFormatterDict}
+    ];
+    var columnsDictItem = [
+        {field: 'checkbox', align: 'center', checkbox: true},
+        {field: 'typeId', title: '类型', align: 'center'},
+        {field: 'value', title: '代码', align: 'center'},
+        {field: 'content', title: '名称', align: 'center'},
+        {field: 'remark', title: '备注', align: 'center'},
+        {field: 'operate', title: '操作', align: 'center', formatter: operateFormatterDictItem}
+    ];
+
+    TableInit = function (tableObj, url, columns, paramAdded, toolbarId) {
+        var oTableInit = new Object();
+        //初始化Table
+        oTableInit.Init = function () {
+            tableObj.bootstrapTable({
+                editable: true,						//EdiTable
+                url: url,         //请求后台的URL（*）
+                method: 'POST',                      //请求方式（*）
+                toolbar: toolbarId,                //工具按钮用哪个容器
+                checkbox: true,							//显示复选框
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: true,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                queryParams: oTableInit.queryParams,//传递参数（*）
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageSize: 10,                       //每页的记录行数（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                paginationVAlign: "bottom",
+                pageList: [5, 10, 15, 20],         //可供选择的每页的行数（*）
+                search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                contentType: "application/x-www-form-urlencoded",
+                strictSearch: true,					//分页导航条位置
+                showColumns: true,                  //是否显示所有的列
+                showRefresh: true,                  //是否显示刷新按钮
+                //showFooter:true,
+                minimumCountColumns: 2,             //最少允许的列数
+                //clickToSelect: true,                //是否启用点击选中行
+                //height: 700,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                //showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                   //是否显示父子表
+                //fixedColumns: true,
+                //fixedNumber: 2,
+                columns: columns,
+                onLoadSuccess: function (aa, bb, cc) {
+                },
+                formatNoMatches: function () {  //没有匹配的结果
+                    return '无记录';
+                },
+
+            });
+        };
+
+        //得到查询的参数
+        oTableInit.queryParams = function (params) {
+            var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                pageSize: params.limit,   			//页面大小
+                currentPage: params.offset / params.limit + 1
+            };
+            return Object.assign(temp, paramAdded);
+        };
+        return oTableInit;
+    };
+
+    // 添加选中行
+    $('#dictTable').on('check.bs.table', function (e, row) {
+        if (row != undefined) {
+            select_rows1.push(row);
+        }
+        console.log(select_rows1);
+    });
+    // 添加选中行
+    $('#dictItemTable').on('check.bs.table', function (e, row) {
+        if (row != undefined) {
+            select_rows2.push(row);
+        }
+        console.log(select_rows2);
+    });
+    //修改字典类型(dict)
+    function updateDict(id) {
+        layer.open({
+            title: '修改字典类型信息',
+            type: 2,
+            content: '${rc.contextPath}/dict/updateDictPage?id=' + id,
+            maxmin: true,
+            area: ['700px', '360px'],
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                if ('true' == $('#layer_refresh').val()) {
+                    $('#layer_refresh').val('');
+                    $("#dictTable").bootstrapTable('refresh');
+                    $("#dictItemTable").bootstrapTable('refresh');
+                }
+
+            }
+        });
+    }
+    //修改字典类型(dictItem)
+    function updateDictItem(id) {
+        layer.open({
+            title: '修改字典项信息',
+            type: 2,
+            content: '${rc.contextPath}/dictItem/updateDictItemPage?id=' + id,
+            maxmin: true,
+            area: ['700px', '360px'],
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                if ('true' == $('#layer_refresh').val()) {
+                    $('#layer_refresh').val('');
+                    $("#dictItemTable").bootstrapTable('refresh');
+                }
+            }
+        });
+    }
+    //添加字典类型(dict)
+    function addDict() {
+        layer.open({
+            type: 2,
+            title: '添加字典类型信息',
+            content: '${rc.contextPath}/dict/addDictPage',
+            area: ['700px', '360px'],
+            maxmin: true,
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                if ('true' == $('#layer_refresh').val()) {
+                    $('#layer_refresh').val('');
+                    $("#dictTable").bootstrapTable('refresh');
+                    $("#dictItemTable").bootstrapTable('refresh');
+                }
+            }
+        });
+    }
+    //添加字典类型(dictItem)
+    function addDictItem(id) {
+        layer.open({
+            type: 2,
+            title: '添加字典项信息',
+            content: '${rc.contextPath}/dictItem/addDictItemPage?id='+id ,
+            area: ['700px', '360px'],
+            maxmin: true,
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                if ('true' == $('#layer_refresh').val()) {
+                    $('#layer_refresh').val('');
+                    $("#dictItemTable").bootstrapTable('refresh');
+                }
+            }
+        });
+    }
+    //删除选中数据(dict)
+    function deleteSelectDict() {
+        var ids = new Array();//保存用户选择的数据的ID
+        var rows = $("#dictTable").bootstrapTable('getSelections');
+        if(rows.length == 0){
+            layer.msg("请勾选后删除!");
+            return;
+        }
+        //删除前确认
+        layer.confirm(
+            "确认?",
+            {icon: 2, title: "删除"},
+            function (index) {
+                layer.close(index);
+                for (var i = 0; i < rows.length; i++) {
+                    ids.push(JSON.parse('{"typeId":"' + rows[i].typeId + '"}'));
+                }
+                ids = JSON.stringify(ids);
+                var data = new AjaxRequest("/dict/deleteDict", ids).json().execute();
+                $("#dictTable").bootstrapTable('refresh');
+                $("#dictItemTable").bootstrapTable('refresh');
+                if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+            }
+        );
+    }
+    //删除选中数据(dictItem)
+    function deleteSelectDictItem() {
+        var ids = new Array();//保存用户选择的数据的ID
+        var rows = $("#dictItemTable").bootstrapTable('getSelections');
+        if(rows.length == 0){
+            layer.msg("请勾选后删除!");
+            return;
+        }
+        //删除前确认
+        layer.confirm(
+            "确认?",
+            {icon: 2, title: "删除"},
+            function (index) {
+                layer.close(index);
+                for (var i = 0; i < rows.length; i++) {
+                    ids.push(JSON.parse('{"itemId":"' + rows[i].itemId + '"}'));
+                }
+                ids = JSON.stringify(ids);
+                var data = new AjaxRequest("/dictItem/deleteDictItem", ids).json().execute();
+                $("#dictItemTable").bootstrapTable('refresh');
+                if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+            }
+        );
+    }
+    //删除单行数据(dict)
+    function deleteCurrentDict(id) {
+        layer.confirm(
+            "确认?",
+            {icon: 2, title: "删除"},
+            function (index) {
+                layer.close(index);
+                //确认后的逻辑
+                var ids = new Array();
+                ids.push(JSON.parse('{"typeId":"' + id + '"}'));
+                ids = JSON.stringify(ids);
+                var data = new AjaxRequest("/dict/deleteDict", ids).json().execute();
+                $("#dictTable").bootstrapTable('refresh');
+                if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+            }
+        );
+    }
+    
+    //维护按钮
+    function maintainDict(id) {
+        typeId = id;
+        $("#dictItemTable").bootstrapTable("destroy");
+        var oTable2 = new TableInit($("#dictItemTable"), '${rc.contextPath}/dictItem/listDictItem', columnsDictItem, {typeId: id}, '#toolbar2');
+        oTable2.Init();
+    }
+    
+    //删除单行数据(dictItem)
+    function deleteCurrentDictItem(id) {
+        layer.confirm(
+            "确认?",
+            {icon: 2, title: "删除"},
+            function (index) {
+                layer.close(index);
+                //确认后的逻辑
+                var ids = new Array();
+                ids.push(JSON.parse('{"itemId":"' + id + '"}'));
+                ids = JSON.stringify(ids);
+                var data = new AjaxRequest("/dictItem/deleteDictItem", ids).json().execute();
+                $("#dictTable").bootstrapTable('refresh');
+                if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+            }
+        );
+    }
+    // 添加操作列(dict)
+    function operateFormatterDict(value, row, index) {//赋予的参数
+        console.log(row);
+        return [
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="updateDict(\'' + row.typeId + '\')">编辑</a>',
+            '<a class="btn btn-primary btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="maintainDict(\'' + row.typeId + '\')">维护</a>',
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="deleteCurrentDict(\'' + row.typeId + '\')">删除</a>'
+        ].join('');
+    }
+    // 添加操作列(dictItem)
+    function operateFormatterDictItem(value, row, index) {//赋予的参数
+        return [
+            '<a class="btn btn-primary btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="updateDictItem(\'' + row.itemId + '\')">编辑</a>',
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" href="javascript:;" onclick="deleteCurrentDictItem(\'' + row.itemId + '\')">删除</a>'
+        ].join('');
+    }
+
+
+</script>
+</body>
+</html>

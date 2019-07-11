@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.OfMucAffiliationMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.openfire.Ofmucaffiliation">
+    <id column="ROOMID" jdbcType="DECIMAL" property="roomid" />
+    <id column="JID" jdbcType="VARCHAR" property="jid" />
+    <result column="AFFILIATION" jdbcType="DECIMAL" property="affiliation" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ROOMID, JID, AFFILIATION
+  </sql>
+
+  <select id="getOfmucroomDTObyJID" parameterType="java.lang.String" resultType="com.dw.health.eportal.entity.openfire.OfmucroomDTO">
+    SELECT  A.ROOMID,A.JID,B.NAME,B.NATURALNAME
+    FROM OPENFIRE.OFMUCAFFILIATION A
+    LEFT JOIN OPENFIRE.OFMUCROOM B ON A.ROOMID = B.ROOMID
+    WHERE A.JID = #{jid,jdbcType=VARCHAR}
+  </select>
+
+
+  <select id="getMembersByRoomId" parameterType="java.util.Map" resultType="com.dw.health.eportal.entity.openfire.OfUser">
+    SELECT REAL_NAME USERNAME,USER_NAME ID,AVATAR FROM OPENFIRE.OFMUCAFFILIATION
+    LEFT JOIN EPORTAL.USERS
+    ON OPENFIRE.OFMUCAFFILIATION.JID = EPORTAL.USERS.USER_NAME||#{serverName}
+    WHERE OPENFIRE.OFMUCAFFILIATION.ROOMID =#{roomid}
+  </select>
+</mapper>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style type="text/css">
+        #imgShow {
+            width: 60px;
+            height: 100px;
+            position: fixed;
+            top: 10%;
+            left: 5%;
+        }
+    </style>
+</head>
+
+<body style="overflow-x: hidden;">
+<div>
+    <div class="content" style="margin: 20px;">
+        <form method="post" id="myform" role="form">
+            <div class="form-group row">
+                <div class="left col-xs-3 text-right">
+                    <label for="" class="required">应用名:</label>
+                </div>
+                <div class="right col-xs-8 text-left">
+                    <input autocomplete="off" type="text" class="form-control" id="appName" name="appName"
+                           placeholder="请输入应用名" required='required'>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="left col-xs-3 text-right">
+                    <label for="" class="required">URL:</label>
+                </div>
+                <div class="right col-xs-8 text-left">
+                    <input autocomplete="off" type="text" class="form-control" id="url" name="url"
+                           placeholder="请输入URL">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="left col-xs-3 text-right">
+                    <label for="">类型:</label>
+                </div>
+                <div class="right col-xs-8 text-left">
+                    <input autocomplete="off" type="hidden" class="form-control" id="type" name="type"
+                    >
+                    <!--<@dw.select code="apptype" name="type"></@dw.select>-->
+                    <select id="e4_2" class="js-example-templating js-states form-control">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="left col-xs-3 text-right">
+                    <label for="">所属医院:</label>
+                </div>
+                <div class="right col-xs-8 text-left">
+                    <input autocomplete="off" type="text" class="form-control" id="hospitalId" name="hospitalId"
+                    >
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="left col-xs-3 text-right">
+                    <label for="">图片:</label>
+                </div>
+                <div class="right col-xs-4 text-left">
+                    <!--<div class="btn btn-default btn-small" style="text-align: center;">
+                        <span>请选择图片</span>
+                        <input autocomplete="off" type="file" class="form-control" style="opacity:0;height: 50px;"
+                               id="img"
+                               name="img" onchange="showImg(this)">
+                    </div>-->
+                    <input autocomplete="off" type="file" class="form-control" style=""
+                           id="img" name="img">
+                </div>
+
+            </div>
+            <div id="imgShow" style="padding: 0; width: 70px;height:100px">
+                <img id="portrait" src="" style="display:none;"/>
+            </div>
+            <div class="form-group text-center submit">
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var data;
+        data = new AjaxRequest('${rc.contextPath}/dictItem/listDictItem', {
+            typeId: 'apptype',
+            pageSize: 10,
+            currentPage: 1
+        }, null).execute();
+        var dataSelect2 = formatData(data);
+        scroll("#imgShow");
+        $("#e4_2").select2({
+            placeholder: "请选择",
+            allowClear: true,
+            data: dataSelect2.results
+        });
+        $("#e4_2").change(function (e) {
+            var type = $("#e4_2 option:checked").val();
+            $("#type").val(type);
+            //console.log($("#type").val());
+        });
+
+
+        new AjaxForm($('#myform'), "/application/saveApplication", null, formCallback).execute();
+    });
+    function formatData(data) {
+        var itemList = [];//当数据对象不是{id:0,text:'ANTS'}这种形式的时候，可以使用类似此方法创建新的数组对象
+        var arr = data;
+        for (item in arr) {
+            itemList.push({id: item, text: arr[item].content})
+        }
+        return {
+            results: itemList//itemList
+        };
+    }
+    function showImg(source) {
+        var file = source.files[0];
+        if (!/image\/\w+/.test(file.type)) {
+            layer.msg("请选择图片文件!");
+            return false;
+        }
+        if (file.size > 5 * 1024) {
+            layer.msg("图片不能大于5k!");
+            return;
+        }
+        if (window.FileReader) {
+            var fr = new FileReader();
+
+            var portrait = document.getElementById('portrait');
+            fr.onloadend = function (e) {
+                portrait.src = e.target.result;
+            };
+            fr.readAsDataURL(file);
+            portrait.style.display = 'block';
+        } else {
+            layer.msg("浏览器不支持图片预览!");
+        }
+    }
+</script>
+</body>
+</html>

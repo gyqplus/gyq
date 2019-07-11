@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style type="text/css">
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    </style>
+</head>
+
+<body style="overflow-x: hidden;">
+<div class="content" style="padding:50px 0 50px 0;">
+    <form action="" method="post" id="myform" class="form-horizontal "
+          role="form" style="/*background-color: #500a6f*/">
+        <div class="form-group row">
+            <div class="left col-xs-3 text-right">
+                <label for="">部门名称:</label>
+            </div>
+            <div class="right col-xs-8 text-left">
+                <input type="text" class="form-control" id="name" name="name"
+                       placeholder="请输入菜单名" value="${dept.name!}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="left col-xs-3 text-right">
+                <label for="">部门类型:</label>
+            </div>
+            <div class="right col-xs-8 text-left">
+                <input type="text" class="form-control" id="type" name="type"
+                       placeholder="请输入类型" value="${dept.type!}">
+            </div>
+        </div>
+        <div class="form-group text-center submit">
+            <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var param = {deptId: '${dept.deptId}'};
+        new AjaxForm("#myform", "/dept/updateDept", param, formCallback).execute();
+    });
+</script>
+</body>
+</html>

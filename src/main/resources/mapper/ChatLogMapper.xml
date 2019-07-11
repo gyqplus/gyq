@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.ChatLogMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.openfire.ChatLog">
+    <id column="CHAT_ID" jdbcType="VARCHAR" property="chatId" />
+    <result column="CHAT_TYPE" jdbcType="VARCHAR" property="chatType" />
+    <result column="CHAT_USER_ID" jdbcType="VARCHAR" property="chatUserId" />
+    <result column="CHAT_TO_USER_ID" jdbcType="VARCHAR" property="chatToUserId" />
+    <result column="CHAT_TIMESTAMP" jdbcType="VARCHAR" property="chatTimestamp" />
+    <result column="CHAT_BODY" jdbcType="VARCHAR" property="chatBody" />
+    <result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    CHAT_ID, CHAT_TYPE, CHAT_USER_ID, CHAT_TO_USER_ID, CHAT_TIMESTAMP, CHAT_BODY
+  </sql>
+
+  <select id="getFriendChatLogByName" parameterType="com.dw.health.eportal.entity.openfire.ChatLog" resultMap="BaseResultMap">
+    SELECT CHAT_ID, CHAT_TYPE, CHAT_USER_ID, CHAT_TO_USER_ID, CHAT_TIMESTAMP, CHAT_BODY,B.NAME USER_NAME
+    FROM OPENFIRE.CHAT_LOG A
+    LEFT JOIN OPENFIRE.OFUSER B
+    ON A.CHAT_USER_ID = B.USERNAME
+    WHERE
+    CHAT_TYPE ='0'
+    AND
+    (CHAT_USER_ID = #{chatUserId} AND CHAT_TO_USER_ID = #{chatToUserId})
+    OR
+    (CHAT_USER_ID = #{chatToUserId} AND CHAT_TO_USER_ID = #{chatUserId})
+    ORDER BY CHAT_TIMESTAMP ASC
+
+  </select>
+
+  <select id="getGroupChatLogByName" parameterType="com.dw.health.eportal.entity.openfire.ChatLog" resultMap="BaseResultMap">
+    SELECT CHAT_ID, CHAT_TYPE, CHAT_USER_ID, CHAT_TO_USER_ID, CHAT_TIMESTAMP, CHAT_BODY,B.NAME USER_NAME
+    FROM OPENFIRE.CHAT_LOG A
+    LEFT JOIN OPENFIRE.OFUSER B
+    ON A.CHAT_USER_ID = B.USERNAME
+    WHERE
+    CHAT_TYPE ='1'
+    AND
+    CHAT_TO_USER_ID = #{chatToUserId}
+    ORDER BY CHAT_TIMESTAMP ASC
+
+  </select>
+
+</mapper>

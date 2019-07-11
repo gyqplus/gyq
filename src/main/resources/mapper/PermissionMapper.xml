@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.PermissionMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.Permission">
+    <id column="PERM_ID" jdbcType="VARCHAR" property="permId" />
+    <result column="PERM_FLAG" jdbcType="VARCHAR" property="permFlag" />
+    <result column="PERM_DESCRIPTION" jdbcType="VARCHAR" property="permDescription" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="OPERATOR_ID" jdbcType="VARCHAR" property="operatorId" />
+    <result column="DELETE_FLAG" jdbcType="DECIMAL" property="deleteFlag" />
+    <result column="DELETE_TIME" jdbcType="TIMESTAMP" property="deleteTime" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="SP" jdbcType="VARCHAR" property="sp" />
+  </resultMap>
+  <resultMap id="PermDTOResultMap" type="com.dw.health.eportal.entity.dto.PermissionDTO">
+    <id column="PERM_ID" jdbcType="VARCHAR" property="permId" />
+    <result column="PERM_FLAG" jdbcType="VARCHAR" property="permFlag" />
+    <result column="PERM_DESCRIPTION" jdbcType="VARCHAR" property="permDescription" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="OPERATOR_ID" jdbcType="VARCHAR" property="operatorId" />
+    <result column="DELETE_FLAG" jdbcType="DECIMAL" property="deleteFlag" />
+    <result column="DELETE_TIME" jdbcType="TIMESTAMP" property="deleteTime" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="SP" jdbcType="VARCHAR" property="sp" />
+    <result column="USER_NAME" jdbcType="VARCHAR" property="operatorName"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    PERM_ID, PERM_FLAG, PERM_DESCRIPTION, CREATE_TIME, MODIFY_TIME, OPERATOR_ID, DELETE_FLAG, 
+    DELETE_TIME, HOSPITAL_ID, SP
+  </sql>
+  <select id="selectByUserId" parameterType="java.lang.String" resultType="java.lang.String">
+    select permission.perm_flag
+    from EPORTAL.users
+    left join EPORTAL.rel_user_role on users.user_id = rel_user_role.user_id
+    left join EPORTAL.role on role.role_id = rel_user_role.role_id
+    left join EPORTAL.rel_role_permission on role.role_id = rel_role_permission.role_id
+    left join EPORTAL.permission on rel_role_permission.perm_id = permission.perm_id
+    where users.user_id = #{userId,jdbcType=VARCHAR}
+    and rel_user_role.DELETE_FLAG = '0'
+    and role.DELETE_FLAG = '0'
+    and rel_role_permission.DELETE_FLAG = '0'
+    and permission.DELETE_FLAG = '0'
+  </select>
+  <select id="selectByPermId" parameterType="java.lang.String" resultMap="PermDTOResultMap">
+    select
+    permission.*, users.user_name
+    from EPORTAL.permission
+    left join EPORTAL.users
+    on permission.operator_id = users.user_id
+    where permission.perm_id = #{permId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectPermListBySearchDTO" parameterType="com.dw.health.eportal.entity.dto.PermissionDTO" resultMap="PermDTOResultMap">
+    select
+    permission.*, users.user_name
+    from EPORTAL.permission
+    left join EPORTAL.users
+    on permission.operator_id = users.user_id
+    <where>
+      <if test="permDescription != null and permDescription != ''">
+        permission.PERM_DESCRIPTION like '%'||#{permDescription,jdbcType=VARCHAR}||'%'
+      </if>
+      AND permission.DELETE_FLAG = '0'
+    </where>
+  </select>
+  <select id="selectPermListByRoleId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    permission.*
+    from EPORTAL.role
+    left join EPORTAL.rel_role_permission on role.role_id = rel_role_permission.role_id
+    left join EPORTAL.permission on rel_role_permission.perm_id = permission.perm_id
+    where role.role_id = #{roleId,jdbcType=VARCHAR}
+    and rel_role_permission.delete_flag = '0'
+    and permission.DELETE_FLAG = '0'
+  </select>
+  <select id="selectNPermListByRoleId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from EPORTAL.permission
+    where perm_id not in(
+    select
+    nvl(permission.perm_id,' ')
+    from EPORTAL.role
+    left join EPORTAL.rel_role_permission on role.role_id = rel_role_permission.role_id
+    left join EPORTAL.permission on rel_role_permission.perm_id = permission.perm_id
+    where role.role_id = #{roleId,jdbcType=VARCHAR}
+    AND rel_role_permission.delete_flag = '0'
+    and permission.DELETE_FLAG = '0')
+    and permission.DELETE_FLAG = '0'
+  </select>
+
+</mapper>

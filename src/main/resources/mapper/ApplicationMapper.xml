@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.ApplicationMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.Application">
+    <id column="APP_ID" jdbcType="VARCHAR" property="appId" />
+    <result column="APP_NAME" jdbcType="VARCHAR" property="appName" />
+    <result column="URL" jdbcType="VARCHAR" property="url" />
+    <result column="SEQ" jdbcType="DECIMAL" property="seq" />
+    <result column="TYPE" jdbcType="VARCHAR" property="type" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="OPERATOR_ID" jdbcType="VARCHAR" property="operatorId" />
+    <result column="DELETE_FLAG" jdbcType="DECIMAL" property="deleteFlag" />
+    <result column="DELETE_TIME" jdbcType="TIMESTAMP" property="deleteTime" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="SP" jdbcType="VARCHAR" property="sp" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="AppDTOResultMap" type="com.dw.health.eportal.entity.dto.ApplicationDTO">
+    <result column="ICON" jdbcType="BLOB" property="icon" />
+    <result column="USER_NAME" jdbcType="VARCHAR" property="operatorName"/>
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.dw.health.eportal.entity.Application">
+    <result column="ICON" jdbcType="BLOB" property="icon" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    APP_ID, APP_NAME, URL, SEQ, TYPE, CREATE_TIME, MODIFY_TIME, OPERATOR_ID, DELETE_FLAG, 
+    DELETE_TIME, HOSPITAL_ID, SP
+  </sql>
+  <sql id="Blob_Column_List">
+    ICON
+  </sql>
+  <select id="listAppDTO" parameterType="com.dw.health.eportal.entity.dto.ApplicationDTO" resultMap="AppDTOResultMap">
+    select
+    application.*, users.user_name
+    from eportal.application
+    left join eportal.users
+    on application.operator_id = users.user_id
+    <where>
+      <if test="type != null and type != ''">
+        TYPE = #{type,jdbcType=VARCHAR}
+      </if>
+      and application.DELETE_FLAG = '0'
+    </where>
+    order by application.seq asc
+  </select>
+  <select id="getAppDTOByAppId" parameterType="java.lang.String" resultMap="AppDTOResultMap">
+    select
+    application.*, users.user_name
+    from eportal.application
+    left join eportal.users
+    on application.operator_id = users.user_id
+    where application.app_id = #{appId,jdbcType=VARCHAR}
+  </select>
+
+</mapper>

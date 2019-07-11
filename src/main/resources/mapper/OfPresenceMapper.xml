@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.OfPresenceMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.openfire.OfPresence">
+    <id column="USERNAME" jdbcType="VARCHAR" property="username" />
+    <result column="OFFLINEDATE" jdbcType="CHAR" property="offlinedate" />
+      <result column="OFFLINEPRESENCE" jdbcType="LONGVARCHAR" property="offlinepresence" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    USERNAME, OFFLINEDATE ,OFFLINEPRESENCE
+  </sql>
+
+
+</mapper>

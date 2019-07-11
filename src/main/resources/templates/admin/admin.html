@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="bookmark" href="${rc.contextPath}/webjars/framework/images/favicon.ico"/>
+    <link rel="shortcut icon" href="${rc.contextPath}/webjars/framework/images/favicon.ico"/>
+    <link rel="icon" href="${rc.contextPath}/webjars/framework/images/favicon.ico"/>
+    <title>互联互通平台</title>
+
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" href="${rc.contextPath}/webjars/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/webjars/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="${rc.contextPath}/webjars/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="${rc.contextPath}/webjars/AdminLTE/2.3.8/dist/css/AdminLTE.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="${rc.contextPath}/webjars/AdminLTE/2.3.8/dist/css/skins/_all-skins.min.css">
+	
+	<!-- jQuery 2.2.3 -->
+    <script type="text/javascript" src="${rc.contextPath}/webjars/jquery/1.11.3/jquery.min.js"></script>
+	<!-- Bootstrap 3.3.6 -->
+    <script type="text/javascript" src="${rc.contextPath}/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<!-- Slimscroll -->
+	<script src="${rc.contextPath}/webjars/jQuery-slimScroll/1.3.8/jquery.slimscroll.js"></script>
+	<!-- FastClick -->
+	<script src="${rc.contextPath}/webjars/fastclick/1.0.6/fastclick.js"></script>
+	<!-- AdminLTE App -->
+	<script src="${rc.contextPath}/webjars/AdminLTE/2.3.8/dist/js/app.js"></script>
+	<!-- AdminLTE for demo purposes -->
+	<!--<script src="${rc.contextPath}/webjars/AdminLTE/2.3.8/dist/js/demo.js"></script>-->
+	
+	<!--tabs-->
+	<script src="${rc.contextPath}/webjars/AdminLTE/2.3.8/dist/js/app_iframe.js"></script>
+
+    <!--http://aimodu.org:7777/admin/index_iframe.html?q=audio&search=#-->
+    <style type="text/css">
+        html {
+            overflow: hidden;
+        }
+        .user-dropdown{
+            width: 105px !important;
+            min-width: 100px !important;
+            border-color: #c7c1c1e0;
+            box-shadow: 0 6px 12px rgba(0,0,0,.175)
+        }
+        .user-dropdown li{
+            margin: 6px 0;
+            width: 100px;
+        }
+        .main-header .navbar{
+            margin-left: 180px ;
+            background-color: #5c7cfe !important;
+        }
+        @media (max-width: 767px){
+            .main-header .navbar {
+                margin: 0;
+            }
+            .main-header .logo, .main-header .navbar {
+                width: 100% !important;
+            }
+            .content-wrapper {
+                margin-left: 0 !important;
+            }
+        }
+        .main-header .logo{
+            width: 180px ;
+            background-color: #5c7cfe !important;
+        }
+        .main-sidebar{
+            width: 180px;
+        }
+        .content-wrapper{
+            margin-left: 180px;
+        }
+    </style>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="${rc.contextPath}/frame/AdminLTE-With-Iframe/plugins/ie9/html5shiv.min.js"></script>
+    <script src="${rc.contextPath}/frame/AdminLTE-With-Iframe/plugins/ie9/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="hold-transition skin-blue-light sidebar-mini fixed">
+<div class="wrapper">
+
+    <header class="main-header">
+        <!-- Logo -->
+        <a href="#" class="logo" style="">
+            <!-- mini logo for sidebar mini 50x50 pixels -->
+            <span class="logo-mini">平台</span>
+            <!-- logo for regular state and mobile devices -->
+            <span class="logo-lg">互联互通平台</span>
+        </a>
+        <!-- Header Navbar: style can be found in header.less -->
+        <nav class="navbar navbar-static-top" style="">
+            <!-- Sidebar toggle button-->
+            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <!-- OfUser Account: style can be found in dropdown.less -->
+                    <li class="dropdown user user-menu" >
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <img src="${rc.contextPath}/webjars/AdminLTE/2.3.8/dist/img/user2-160x160.jpg" class="user-image" alt="User Image">
+                            <span class="hidden-xs">${user.userName}</span>
+                        </a>
+                        <ul class="dropdown-menu user-dropdown">
+                            <li>
+                                <a href="${rc.contextPath}/index">返回首页</a>
+                            </li>
+                            <li role="separator" class="divider" style="margin: 0px;"></li>
+                            <li>
+                                <a href="${rc.contextPath}/logout">退出</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="main-sidebar" >
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+            <!-- sidebar menu: : style can be found in sidebar.less -->
+            <ul class="sidebar-menu">
+            </ul>
+        </section>
+        <!-- /.sidebar -->
+    </aside>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" id="content-wrapper" style="min-height: 421px;">
+        <!--bootstrap tab风格 多标签页-->
+        <div class="content-tabs">
+            <button class="roll-nav roll-left tabLeft" onclick="scrollTabLeft()">
+                <i class="fa fa-backward"></i>
+            </button>
+            <nav class="page-tabs menuTabs tab-ui-menu" id="tab-menu">
+                <div class="page-tabs-content" style="margin-left: 0px;">
+
+                </div>
+            </nav>
+            <button class="roll-nav roll-right tabRight" onclick="scrollTabRight()">
+                <i class="fa fa-forward" style="margin-left: 3px;"></i>
+            </button>
+            <div class="btn-group roll-nav roll-right">
+                <button class="dropdown tabClose" data-toggle="dropdown">
+                    页签操作<i class="fa fa-caret-down" style="padding-left: 3px;"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" style="min-width: 128px;">
+                    <li><a class="tabReload" href="javascript:refreshTab();">刷新当前</a></li>
+                    <li><a class="tabCloseCurrent" href="javascript:closeCurrentTab();">关闭当前</a></li>
+                    <li><a class="tabCloseAll" href="javascript:closeOtherTabs(true);">全部关闭</a></li>
+                    <li><a class="tabCloseOther" href="javascript:closeOtherTabs();">除此之外全部关闭</a></li>
+                </ul>
+            </div>
+            <button class="roll-nav roll-right fullscreen" onclick="App.handleFullScreen()"><i
+                    class="fa fa-arrows-alt"></i></button>
+        </div>
+        <div class="content-iframe " style="background-color: #ffffff; ">
+            <div class="tab-content " id="tab-content">
+
+            </div>
+        </div>
+    </div>
+    <!-- /.content-wrapper -->
+</div>
+<!-- ./wrapper -->
+
+
+
+<script type="text/javascript">
+    /**
+     * 本地搜索菜单
+     */
+    function search_menu() {
+        //要搜索的值
+        var text = $('input[name=q]').val();
+
+        var $ul = $('.sidebar-menu');
+        $ul.find("a.nav-link").each(function () {
+            var $a = $(this).css("border", "");
+
+            //判断是否含有要搜索的字符串
+            if ($a.children("span.menu-text").text().indexOf(text) >= 0) {
+
+                //如果a标签的父级是隐藏的就展开
+                $ul = $a.parents("ul");
+
+                if ($ul.is(":hidden")) {
+                    $a.parents("ul").prev().click();
+                }
+
+                //点击该菜单
+                $a.click().css("border", "1px solid");
+
+//                return false;
+            }
+        });
+    }
+
+    $(function () {
+//        console.log(window.location);
+
+        App.setbasePath("${rc.contextPath}/webjars/AdminLTE/2.3.8/");
+        App.setGlobalImgPath("dist/img/");
+
+        addTabs({
+            id: '10008',
+            title: '欢迎页',
+            close: false,
+            url: '${rc.contextPath}/admin/adminHome',
+            urlType: 'absolute'
+        });
+
+        App.fixIframeCotent();
+
+        /*addTabs({
+         id: '10009',
+         title: '404',
+         close: true,
+         url: 'UI/buttons_iframe2.html'
+         });*/
+
+        /*
+         <li class="treeview">
+         <a href="#">
+         <i class="fa fa-edit"></i> <span>Forms</span>
+         <span class="pull-right-container">
+         <i class="fa fa-angle-left pull-right"></i>
+         </span>
+         </a>
+         <ul class="treeview-menu">
+         <li><a href="forms/general.html"><i class="fa fa-circle-o"></i> General Elements</a></li>
+         <li><a href="forms/advanced.html"><i class="fa fa-circle-o"></i> Advanced Elements</a></li>
+         <li><a href="forms/editors.html"><i class="fa fa-circle-o"></i> Editors</a></li>
+         </ul>
+         </li>
+         */
+        var menus = JSON.parse('${navjson}');
+        $('.sidebar-menu').sidebarMenu({data: menus});
+
+        // 动态创建菜单后，可以重新计算 SlimScroll
+        // $.AdminLTE.layout.fixSidebar();
+
+        /*if ($.AdminLTE.options.sidebarSlimScroll) {
+            if (typeof $.fn.slimScroll != 'undefined') {
+                //Destroy if it exists
+                var $sidebar = $(".sidebar");
+                $sidebar.slimScroll({destroy: true}).height("auto");
+                //Add slimscroll
+                $sidebar.slimscroll({
+                    height: ($(window).height() - $(".main-header").height()) + "px",
+                    color: "rgba(0,0,0,0.2)",
+                    size: "3px"
+                });
+            }
+        }*/
+
+    });
+</script>
+
+</body>
+</html>

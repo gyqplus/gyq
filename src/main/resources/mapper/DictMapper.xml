@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.DictMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.Dict">
+    <id column="TYPE_ID" jdbcType="VARCHAR" property="typeId" />
+    <result column="REMARK" jdbcType="VARCHAR" property="remark" />
+    <result column="TYPE_NAME" jdbcType="VARCHAR" property="typeName" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="OPERATOR_ID" jdbcType="VARCHAR" property="operatorId" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="DELETE_FLAG" jdbcType="VARCHAR" property="deleteFlag" />
+    <result column="DELETE_TIME" jdbcType="TIMESTAMP" property="deleteTime" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="SP" jdbcType="VARCHAR" property="sp" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    TYPE_ID, REMARK, TYPE_NAME, CREATE_TIME, OPERATOR_ID, MODIFY_TIME, DELETE_FLAG, 
+    DELETE_TIME, HOSPITAL_ID, SP
+  </sql>
+  <update id="updateDictByTypeId">
+    update EPORTAL.DICT
+    <set>
+      <if test="param.dict.typeId != null">
+        TYPE_ID = #{param.dict.typeId,jdbcType=VARCHAR},
+      </if>
+      <if test="param.dict.remark != null">
+        REMARK = #{param.dict.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="param.dict.typeName != null">
+        TYPE_NAME = #{param.dict.typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="param.dict.createTime != null">
+        CREATE_TIME = #{param.dict.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="param.dict.operatorId != null">
+        OPERATOR_ID = #{param.dict.operatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="param.dict.modifyTime != null">
+        MODIFY_TIME = #{param.dict.modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="param.dict.deleteFlag != null">
+        DELETE_FLAG = #{param.dict.deleteFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="param.dict.deleteTime != null">
+        DELETE_TIME = #{param.dict.deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="param.dict.hospitalId != null">
+        HOSPITAL_ID = #{param.dict.hospitalId,jdbcType=VARCHAR},
+      </if>
+      <if test="param.dict.sp != null">
+        SP = #{param.dict.sp,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TYPE_ID = #{param.typeIdOld,jdbcType=VARCHAR}
+  </update>
+  <select id="listDict" parameterType="com.dw.health.eportal.entity.dto.DictDTO" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from EPORTAL.DICT
+    <where>
+      <if test="typeName != null and typeName != ''">
+        TYPE_NAME like '%'||#{typeName,jdbcType=VARCHAR}||'%'
+      </if>
+      and DELETE_FLAG = '0'
+    </where>
+  </select>
+</mapper>

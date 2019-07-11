@@ -1,0 +1,63 @@
+.loginheader{
+	border: hidden;
+}
+.loginbody{
+	background: url(../images/bg_login.png) no-repeat 0px 0px;
+	font-family: 'Open Sans', sans-serif;
+	background-size:cover;
+	-webkit-background-size:cover;
+	-moz-background-size:cover;
+	-o-background-size:cover;
+	min-height: 80vh;
+}
+
+.loginform{
+	background: url(../images/bg_login_k3.png) no-repeat 0px 0px;
+	font-family: 'Open Sans', sans-serif;
+	background-size:cover;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/public/images/bg_login_k3.png',sizingMethod='scale');
+	-webkit-background-size:cover;
+	-moz-background-size:cover;
+	-o-background-size:cover;
+	width: 410px;
+	position:absolute;
+	top: 18%;
+	right: 10%;
+	padding:50px 50px 63px 50px;
+}
+.login-input-group{
+	margin:40px 0px 0px 0px;
+}
+.loginbar{
+	padding: 2px 0 50px 0;
+    height: 16px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    line-height: 16px;
+}
+.loginbar.loginbar-rfpwd{
+	border-right: none;
+    float: left;
+}
+.un-login{
+	vertical-align: middle;
+    padding-left: 2px;
+    font-size: 10px;
+    color: #999;
+}
+.forgetpwd{
+	font-size: 10px;
+	float: right;
+	display:inline;
+    color: #3182d9;
+}
+.login-btn{
+	margin: auto;
+}
+.loginbtn{
+	background-color: #287eef !important;
+	border-radius: 9px !important;
+	height: 56px;
+	width: 100%;
+	font-size: 18px !important;
+}

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dw.health.eportal.dao.RoleMapper">
+  <resultMap id="BaseResultMap" type="com.dw.health.eportal.entity.Role">
+    <id column="ROLE_ID" jdbcType="VARCHAR" property="roleId" />
+    <result column="ROLE_FLAG" jdbcType="VARCHAR" property="roleFlag" />
+    <result column="ROLE_DESCRIPTION" jdbcType="VARCHAR" property="roleDescription" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="OPERATOR_ID" jdbcType="VARCHAR" property="operatorId" />
+    <result column="DELETE_FLAG" jdbcType="DECIMAL" property="deleteFlag" />
+    <result column="DELETE_TIME" jdbcType="TIMESTAMP" property="deleteTime" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="SP" jdbcType="VARCHAR" property="sp" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="RoleDTOResultMap" type="com.dw.health.eportal.entity.dto.RoleDTO">
+    <result column="USER_NAME" jdbcType="VARCHAR" property="operatorName"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    ROLE_ID, ROLE_FLAG, ROLE_DESCRIPTION, CREATE_TIME, MODIFY_TIME, OPERATOR_ID, DELETE_FLAG, 
+    DELETE_TIME, HOSPITAL_ID, SP
+  </sql>
+
+  <select id="selectByRoleId" parameterType="java.lang.String" resultMap="RoleDTOResultMap">
+    select
+    role.*, users.user_name
+    from EPORTAL.role
+    left join EPORTAL.users
+    on role.operator_id = users.user_id
+    where role.role_id = #{roleId,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectRoleListBySearchDTO" parameterType="com.dw.health.eportal.entity.dto.RoleDTO" resultMap="RoleDTOResultMap">
+    select
+    role.*, users.user_name
+    from EPORTAL.role
+    left join EPORTAL.users
+    on role.operator_id = users.user_id
+    <where>
+      <if test="roleDescription != null and roleDescription != ''">
+        ROLE.ROLE_DESCRIPTION like '%'||#{roleDescription,jdbcType=VARCHAR}||'%'
+      </if>
+      AND ROLE.DELETE_FLAG = '0'
+    </where>
+  </select>
+  <select id="selectRoleListByUserId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    role.*
+    from EPORTAL.users
+    left join EPORTAL.rel_user_role on users.user_id = rel_user_role.user_id
+    left join EPORTAL.role on rel_user_role.role_id = role.role_id
+    where users.user_id = #{userId,jdbcType=VARCHAR}
+    and rel_user_role.delete_flag = '0'
+    and role.delete_flag = '0'
+  </select>
+  <select id="selectNRoleListByUserId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from EPORTAL.role
+    where role_id not in(
+    select
+    nvl(role.ROLE_ID,' ')
+    from EPORTAL.users
+    left join EPORTAL.rel_user_role on users.user_id = rel_user_role.user_id
+    left join EPORTAL.role on rel_user_role.role_id = role.role_id
+    where users.user_id = #{userId,jdbcType=VARCHAR}
+    and rel_user_role.delete_flag = '0'
+    and role.delete_flag = '0')
+    and role.delete_flag = '0'
+  </select>
+  <select id="selectRoleListByPermId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    role.*
+    from EPORTAL.permission
+    left join EPORTAL.rel_role_permission on permission.perm_id = rel_role_permission.perm_id
+    left join EPORTAL.role on rel_role_permission.role_id = role.role_id
+    where permission.perm_id = #{permId,jdbcType=VARCHAR}
+    and rel_role_permission.delete_flag = '0'
+    and role.delete_flag = '0'
+  </select>
+  <select id="selectNRoleListByPermId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from EPORTAL.role
+    where role_id not in(
+    select
+    nvl(role.ROLE_ID,' ')
+    from EPORTAL.permission
+    left join EPORTAL.rel_role_permission on permission.perm_id = rel_role_permission.perm_id
+    left join EPORTAL.role on rel_role_permission.role_id = role.role_id
+    where permission.perm_id = #{permId,jdbcType=VARCHAR}
+    and rel_role_permission.delete_flag = '0'
+    and role.delete_flag = '0')
+    and role.delete_flag = '0'
+  </select>
+  <select id="selectByUserId" parameterType="java.lang.String" resultType="java.lang.String">
+    select role.role_flag
+    from EPORTAL.users
+    left join EPORTAL.rel_user_role on users.user_id = rel_user_role.user_id
+    left join EPORTAL.role on rel_user_role.role_id = role.role_id
+    where users.user_id = #{userId,jdbcType=VARCHAR}
+    and rel_user_role.DELETE_FLAG = '0'
+    and role.delete_flag = '0'
+  </select>
+
+</mapper>

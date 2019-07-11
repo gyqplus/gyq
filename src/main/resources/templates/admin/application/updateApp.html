@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style type="text/css">
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    </style>
+</head>
+
+<body style="overflow-x: hidden;">
+<div class="content" style="padding:50px 0 50px 0;">
+    <form action="" method="post" id="myform" class="form-horizontal "
+          role="form" style="/*background-color: #500a6f*/">
+        <div class="form-group row">
+            <div class="left col-xs-3 text-right">
+                <label for="">应用名:</label>
+            </div>
+            <div class="right col-xs-8 text-left">
+                <input type="text" class="form-control" id="appName" name="appName"
+                       placeholder="请输入应用名" value="${app.appName!}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="left col-xs-3 text-right">
+                <label for="">URL:</label>
+            </div>
+            <div class="right col-xs-8 text-left">
+                <input type="text" class="form-control" id="url" name="url"
+                       placeholder="请输入URL" value="${app.url!}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="left col-xs-3 text-right">
+                <label for="">类型:</label>
+            </div>
+            <div class="right col-xs-8 text-left">
+                <input type="text" class="form-control" id="type" name="type" value="${app.type!}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="left col-xs-3 text-right">
+                <label for="">图片:</label>
+            </div>
+            <div class="right col-xs-4 text-left">
+                <div class="btn btn-default btn-small" style="text-align: center;">
+                    <span>请选择图片</span>
+                    <input autocomplete="off" type="file" class="form-control" style="opacity:0;"
+                           id="img"
+                           name="img">
+                    <span id="imgName"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group text-center submit">
+            <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var imgChange = false;
+        $('#img').change(function (e) {
+            var file = e.currentTarget.files[0];
+            if (!/image\/\w+/.test(file.type)) {
+                layer.msg("请选择图片文件!");
+                return;
+            }
+            if (file.size > 5 * 1024) {
+                layer.msg("图片不能大于5k!");
+                return;
+            }
+            var imgName = file.name;
+            $("#imgName").text("已选择: " + imgName);
+            imgChange = true;
+        });
+        var param = {appId: '${app.appId}'};
+        var data;
+        if (imgChange){
+            data = new AjaxForm($("#myform"), "/application/updateApplication", param, formCallback).execute();
+        }
+        else {
+            data = new AjaxForm($("#myform"), "/application/updateApplicationWithoutIcon", param, formCallback).execute();
+        }
+    });
+
+
+</script>
+</body>
+</html>

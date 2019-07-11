@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>添加</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" type="text/css" href="${rc.contextPath}/public/style/indexStyle.css"/>
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        lable {
+            padding-right: 10px;
+        }
+
+        #resultUl {
+            list-style: none;
+            margin-left: 0px;
+            margin-top: 10px;
+            padding: 0px;
+        }
+
+        #resultUl li {
+            border-bottom: 1px solid #999999;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+<div style="margin: 5px;">
+    <div class="txl_search_result" id="searchReasult" style="width: 310px">
+        <ul id="resultUl" style="width: 400px">
+        </ul>
+    </div>
+</div>
+<script>
+
+    // XMPP服务器配置
+    var OpenfireConfigure = getOpenfireConfigure();
+    // nginx服务器配置
+    var NginxConfig = getNginxConfig();
+
+    //获取openfire配置
+    function getOpenfireConfigure() {
+        var openfireConfigure = new AjaxRequest("/op/configure", null).execute();
+        return openfireConfigure;
+    }
+    //获取nginx配置
+    function getNginxConfig() {
+        var nginxConfig = new AjaxRequest("/nginx/getNginxConfig", null).execute();
+        return nginxConfig;
+    }
+
+    function addGroup(id){
+        var friendName ='${friendName}';
+        var result = new AjaxRequest('/op/joinChatRoom',{userName:friendName,roomId:id},null).execute();
+        layer.msg(result);
+    }
+
+
+    //获取群
+    function getGroup() {
+        var result = new AjaxRequest('/op/getRoomByName',{jid:'${mineName}'+'@'+OpenfireConfigure.service_name},null).execute();
+        console.log(result);
+        //layer.msg(result);
+        for(i in result){
+            var grop = result[i];
+            $("#resultUl").append('<li>' +
+                '<lable>' +
+                '   <img style="width: 40px;height: 40px;border-radius: 100%" src= "' + grop.avatar+'">' +
+                '</lable>' +
+                '<lable>' + grop.groupname + '</lable>' +
+                '<lable style="display:none;">' + grop.id + '</lable>' +
+            '<lable style="float: right;cursor:pointer;">' +
+            '<i class="fa fa-plus fa-2x" onclick="addGroup('+grop.id+')" aria-hidden="true"></i>'+
+            '</lable>' +
+            '</li>');
+        }
+
+    }
+    $(function () {
+        getGroup();
+    });
+
+
+</script>
+</body>
+</html>

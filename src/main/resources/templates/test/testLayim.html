@@ -1,0 +1,348 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>LayIM测试</title>
+    <link rel="stylesheet" href="${rc.contextPath}/frame/layim/css/layui.css"/>
+    <script type="text/javascript" src="${rc.contextPath}/frame/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="${rc.contextPath}/frame/layim/layui.js"></script>
+    <script src="${rc.contextPath}/frame/js/strophe.min.js"></script>
+</head>
+<body>
+<script>
+    layui.use('layim', function (layim) {
+        //先来个客服模式压压精
+        layim.config({
+            brief: false, //是否简约模式（如果true则不显示主面板）
+            title: 'EportalIm',
+            min: true,
+            right: '10px',
+            minRight: '200px',
+            initSkin: '5.jpg',
+            isAudio: true,
+            isVideo: true,
+            notice: true,
+            voice: false,
+            uploadImage: {
+                url: '${rc.contextPath}/ftp/upload'
+            },
+            uploadFile: {
+                url: '${rc.contextPath}/ftp/upload'
+            },
+            /*   isfriend: true,
+             isgroup: true,*/
+            init: {
+                mine: { //分组下的好友列表
+                    "username": "郭永强" //好友昵称
+                    , "id": "gyq" //好友ID
+                    , "avatar": "http://10.1.60.24:8666/img/2019316/idea_bgi1 (2).jpg" //好友头像
+                    , "sign": false //好友签名
+                    , "status": "online" //若值为offline代表离线，online或者不填为在线
+                },
+                friend: [{
+                    "groupname": "前端码屌" //好友 分组 名
+                    , "id": 1 //分组ID
+                    , "avatar": "1.jpg"
+                    , "list": [{ //分组下的好友列表
+                        "username": "郭永强" //好友昵称
+                        , "id": "gyq" //好友ID
+                        , "avatar": "http://localhost:8666/img/idea_bgi1.jpg" //好友头像
+                        , "sign": "这些都是测试数据，实际使用请严格按照该格式返回" //好友签名
+                        , "status": "online" //若值为offline代表离线，online或者不填为在线
+                    }, { //分组下的好友列表
+                        "username": "卢艳辉" //好友昵称
+                        , "id": "lyh" //好友ID
+                        , "avatar": "${rc.contextPath}/frame/layim/css/modules/layim/skin/1.jpg" //好友头像
+                        , "sign": "这些都是测试数据，实际使用请严格按照该格式返回" //好友签名
+                        , "status": "online" //若值为offline代表离线，online或者不填为在线
+                    }, { //分组下的好友列表
+                        "username": "李永鑫" //好友昵称
+                        , "id": "lyx" //好友ID
+                        , "avatar": "${rc.contextPath}/frame/layim/css/modules/layim/skin/1.jpg" //好友头像
+                        , "sign": "这些都是测试数据，实际使用请严格按照该格式返回" //好友签名
+                        , "status": "online" //若值为offline代表离线，online或者不填为在线
+                    }, { //分组下的好友列表
+                        "username": "邱继飞" //好友昵称
+                        , "id": "qjf" //好友ID
+                        , "avatar": "${rc.contextPath}/frame/layim/css/modules/layim/skin/1.jpg" //好友头像
+                        , "sign": "这些都是测试数据，实际使用请严格按照该格式返回" //好友签名
+                        , "status": "online" //若值为offline代表离线，online或者不填为在线
+                    }]
+                }, {
+                    "groupname": "大健康二部" //好友 分组 名
+                    , "id": 2 //分组ID
+                    , "avatar": "1.jpg"
+                }
+                ]
+                , group: [{
+                    "groupname": "前端群" //群组名
+                    ,
+                    "id": "101" //群组ID
+                    ,
+                    "avatar": "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554889558130&di=86a0950eb2f82ea54ad814fa80d28400&imgtype=jpg&src=http%3A%2F%2Fimg2.imgtn.bdimg.com%2Fit%2Fu%3D2089725202%2C2339482354%26fm%3D214%26gp%3D0.jpg" //群组头像
+                },
+                    {
+                        "groupname": "后端群" //群组名
+                        ,
+                        "id": "102" //群组ID
+                        ,
+                        "avatar": "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1368543271,1007762748&fm=26&gp=0.jpg" //群组头像
+                    },
+                    {
+                        "groupname": "全栈群" //群组名
+                        ,
+                        "id": "103" //群组ID
+                        ,
+                        "avatar": "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2270782982,2436687425&fm=26&gp=0.jpg" //群组头像
+                    }
+                ]
+            }
+        });
+
+        //发消息
+        layim.on("sendMessage", function (res) {
+
+            var mine = res.mine; //包含我发送的消息及我的信息
+            var to = res.to;
+            var too = JSON.parse(JSON.stringify(mine)).username;
+            console.log(mine);
+            console.log(res);
+            if (connected) {
+                var msg = $msg({
+                    to: to.id + '@openfire',
+                    from: mine.id + '@openfire',
+                    type: 'chat',
+                    name: mine.name
+                }).c("body", mine.content).up().c('avatar',mine.avatar).up().c('username',mine.username).up().c('toType',to.type);
+                console.log(msg.tree());
+                connection.send(msg.tree());
+
+                $("#msg").append(jid + ":<br>" + $("#input-msg").val() + "<br>");
+                $("#input-msg").val('');
+            } else {
+                alert("请先登录！");
+            }
+
+        });
+        //加好友
+        $('#addFrd').click(function () {
+            layim.add({
+                type: 'friend' //friend：申请加好友、group：申请加群
+                , username: 'aaa' //好友昵称，若申请加群，参数为：groupname
+                , avatar: 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2143690642,3207082841&fm=26&gp=0.jpg' //头像
+                , submit: function (group, remark, index) { //一般在此执行Ajax和WS，以通知对方
+                    console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值
+                    console.log(remark); //获取附加信息
+                    console.log(mine);
+                    console.log(to);
+                    layer.close(index); //关闭改面板
+
+                }
+            });
+        });
+        /* $('#setGrp').click(function () {
+         layim.setFriendGroup({
+         type: 'friend'
+         , username: 'gyq' //好友昵称，若申请加群，参数为：groupname
+         , avatar: '${rc.contextPath}/frame/layim/css/modules/layim/skin/1.jpg' //头像
+         , group: layim.cache().friend //获取好友列表数据
+         , submit: function (group, index) {
+         //一般在此执行Ajax和WS，以通知对方已经同意申请
+         //……
+
+         //同意后，将好友追加到主面板
+         layim.addList(data); //见下文
+         }
+         });
+         });*/
+        /*layim.getMessage({
+         system: true //系统消息
+         ,id: 1 //聊天窗口ID
+         ,type: "friend" //聊天窗口类型
+         ,content: '对方已掉线'
+         });*/
+        /*$('#getMsg').click(function () {
+         layim.getMessage({
+         username: "纸飞机" //消息来源用户名
+         , avatar: "http://tp1.sinaimg.cn/1571889140/180/40030060651/1" //消息来源用户头像
+         , id: "100002" //消息的来源ID（如果是私聊，则是用户id，如果是群聊，则是群组id）
+         , type: "friend" //聊天窗口来源类型，从发送消息传递的to里面获取
+         , content: "嗨，你好！本消息系离线消息。" //消息内容
+         , cid: 0 //消息id，可不传。除非你要对消息进行一些操作（如撤回）
+         , mine: false //是否我发送的消息，如果为true，则会显示在右方
+         , fromid: "2" //消息的发送者id（比如群组中的某个消息发送者），可用于自动解决浏览器多窗口时的一些问题
+         , timestamp: 1467475443306 //服务端时间戳毫秒数。注意：如果你返回的是标准的 unix 时间戳，记得要 *1000
+         });
+         });*/
+        // 收消息处理
+        function onMessage(msg) {
+            console.log(msg);
+            // 解析出<message>的from、type属性，以及body子元素
+            var to = msg.getAttribute('to');
+            var id = msg.getAttribute('id');
+            var from = msg.getAttribute('from');
+            var type = msg.getAttribute('type');
+            var content = msg.getElementsByTagName('body');
+            var toType = msg.getElementsByTagName('toType');
+            var username = msg.getElementsByTagName('username');
+            var avatar = msg.getElementsByTagName('avatar');
+            //好友上线
+            if (to == 'all@broadcast.openfire' && id == 'login') {
+
+//                $("#msg").append(from + "已上线! <br>");
+                layim.setFriendStatus('zzh', 'online');
+            }
+            //好友聊天
+            if (type == "chat" && content.length > 0) {
+                $("#msg").append(from + ":<br>" + Strophe.getText(content[0]) + "<br>");
+                layim.getMessage({
+                    username: Strophe.getText(username[0]) //消息来源用户名
+                    , avatar: Strophe.getText(avatar[0])//"http://tp1.sinaimg.cn/1571889140/180/40030060651/1" //消息来源用户头像
+                    , id: from.substring(0, from.indexOf('@'))//消息的来源ID（如果是私聊，则是用户id，如果是群聊，则是群组id）
+                    , type: Strophe.getText(toType[0])//"group" //聊天窗口来源类型，从发送消息传递的to里面获取
+                    , content: Strophe.getText(content[0]) //消息内容
+                    //, cid: 0 //消息id，可不传。除非你要对消息进行一些操作（如撤回）
+                    //, mine: false //是否我发送的消息，如果为true，则会显示在右方
+                    //, fromid: "2" //消息的发送者id（比如群组中的某个消息发送者），可用于自动解决浏览器多窗口时的一些问题
+                    , timestamp: 1467475443306 //服务端时间戳毫秒数。注意：如果你返回的是标准的 unix 时间戳，记得要 *1000
+                });
+
+            }
+            return true;
+        }
+
+        // 连接状态改变的事件
+        function onConnect(status) {
+            if (status == Strophe.Status.CONNFAIL) {
+                alert("连接失败！");
+            } else if (status == Strophe.Status.AUTHFAIL) {
+                alert("登录失败！");
+            } else if (status == Strophe.Status.DISCONNECTED) {
+                alert("连接断开！");
+                connected = false;
+            } else if (status == Strophe.Status.CONNECTED) {
+                alert("连接成功，可以开始聊天了！");
+                connected = true;
+
+                // 当接收到<message>节，调用onMessage回调函数
+                connection.addHandler(onMessage, null, 'message', null, null, null);
+                // 首先要发送一个<presence>给服务器（initial presence）
+
+                //监听下线
+                connection.addHandler(onPresenceOffline, null, 'presence', 'unavailable', null, null);
+                //上线
+                connection.send($pres().tree());
+                //上线后通知所有人
+                connection.send($msg({to: 'all@broadcast.openfire', id: 'login'}).tree());
+
+            }
+        }
+
+        $('#btn-login').click(function () {
+            if (!connected) {
+                connection = new Strophe.Connection(BOSH_SERVICE);
+                connection.connect($("#input-jid").val() + '@openfire', $("#input-pwd").val(), onConnect);
+                jid = $("#input-jid").val();
+            }
+        });
+        //logout
+        $("#btn-logout").click(function () {
+            connection.send($pres({type: 'unavailable'}).tree());
+        });
+        // 发送消息
+        $("#btn-send").click(function () {
+            if (connected) {
+                if ($("#input-contacts").val() == '') {
+                    alert("请输入联系人！");
+                    return;
+                }
+
+                // 创建一个<message>元素并发送
+                var msg = $msg({
+                    to: $("#input-contacts").val(),
+                    from: jid,
+                    type: 'chat'
+                }).c("body", null, $("#input-msg").val());
+                connection.send(msg.tree());
+
+                $("#msg").append(jid + ":<br>" + $("#input-msg").val() + "<br>");
+                $("#input-msg").val('');
+            } else {
+                alert("请先登录！");
+            }
+        });
+        //下线处理
+        function onPresenceOffline(presence) {
+            console.log(presence);
+            layim.setFriendStatus('zzh', 'offline');
+        }
+
+        //下线测试(置灰)
+        $("#offline").click(function () {
+            layim.setFriendStatus('lyx', 'offline');
+        });
+        //上线测试(置灰)
+        $("#online").click(function () {
+            layim.setFriendStatus('lyx', 'online');
+        });
+        //获取好友
+        $('#getUser').click(function (){
+            var iq = $iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
+            console.log(iq);
+            connection.sendIQ(iq, function(a){
+                console.log('sent iq',a);
+
+                $(a).find('item').each(function(){
+                    var jid = $(this).attr('jid'); // jid
+                    console.log('jid',jid);
+                });
+            });
+        });
+    });
+
+</script>
+<script type="application/javascript">
+
+    // XMPP服务器BOSH地址
+    var BOSH_SERVICE = 'http://10.1.60.24:7070/http-bind/';
+
+    // XMPP连接
+    var connection = null;
+
+    // 当前状态是否连接
+    var connected = false;
+
+    // 当前登录的JID
+    var jid = "";
+
+    $(document).ready(function () {
+        // 通过BOSH连接XMPP服务器
+
+    });
+</script>
+<div class="btn-group">
+    <button type="button" class="btn btn-default" id="getMsg">来消息啦!</button>
+    <button type="button" class="btn btn-default" id="addFrd">加好友</button>
+    <button type="button" class="btn btn-default" id="setGrp">设置群</button>
+    <button type="button" class="btn btn-default" id="offline">李永鑫下线</button>
+    <button type="button" class="btn btn-default" id="online">李永鑫上线</button>
+    <button type="button" class="btn btn-default" id="getUser">获取好友</button>
+</div>
+<br>
+JID：<input type="text" id="input-jid">
+<br>
+密码：<input type="password" id="input-pwd">
+<br>
+<button id="btn-login">登录</button>
+<button id="btn-logout">退出</button>
+<div id="msg" style="height: 400px; width: 400px; overflow: scroll;"></div>
+联系人JID：
+<input type="text" id="input-contacts">
+<br>
+消息：
+<br>
+<textarea id="input-msg" cols="30" rows="4"></textarea>
+<br>
+<button id="btn-send">发送</button>
+</body>
+</html>

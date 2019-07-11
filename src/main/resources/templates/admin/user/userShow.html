@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <style type="text/css">
+        .bs-bars input {
+            width: 180px;
+            height: 34px;
+            padding: 6px 12px;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        }
+
+        .form-group {
+            margin-top: 10px;
+
+        }
+
+        #toolbar1 {
+            margin: 0;
+        }
+
+        #commonTable {
+            margin: 0;
+        }
+        .panel{
+            box-shadow: 0 0 0;
+        }
+    </style>
+</head>
+
+<body>
+<div class="col-md-2 col-xs-2 col-sm-2 hidden-xs"
+     style="height: 100vh;overflow: auto;padding-left: 0;padding-top:5px;border-right: 2px solid #e7ebee;">
+    <ul id="treeDemo" class="ztree"></ul>
+</div>
+<input type="hidden" id="layer_refresh">
+<div class="dw-content col-md-10 col-xs-12 col-sm-10">
+    <div class="panel-group" id="toolbar1">
+        <div class="panel panel-default">
+            <!--<div class="panel-heading">
+                <h4 class="panel-title" style="color: white;">
+                    &lt;!&ndash;<a class="btn btn-primary" id="searchItemShow" data-toggle="collapse" data-parent="#toolbar1"
+                       href="#collapseOne">查询条件</a>
+                    <a class="btn btn-primary" style="margin-right: 0;" onclick='deleteSelectRows()'>删除选中</a>
+                    <a class="btn btn-primary" style="margin-right: 0;" onclick='addUser()'>添加用户</a>
+                    <a class="btn btn-primary btn-sm" onclick="query()" style="float: right;margin-right: 10px;"><i
+                            class="fa fa-search" aria-hidden="true"></i></a>&ndash;&gt;
+                </h4>
+            </div>-->
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body" id="foldPanle">
+                    <form class="form-inline" role="form" id="searchForm">
+                        <div class="form-group">
+                            <label class="" for="userName">用户名:</label>
+                            <input type="text" class="form-control input-sm" id="userName" name="userName"
+                                   placeholder="请输入用户名"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="" for="realName">姓名:</label>
+                            <input type="text" class="form-control input-sm" id="realName" name="realName"
+                                   placeholder="请输入姓名"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="" for="mphone">手机:</label>
+                            <input type="text" class="form-control input-sm" id="mphone" name="mphone"
+                                   placeholder="请输入手机"/></div>
+                        <div class="form-group">
+                            <label class="" for="sp">快捷搜索:</label>
+                            <input type="text" class="form-control input-sm" id="sp" name="sp"
+                                   placeholder="输入姓名首拼"/></div>
+                        <div class="form-group">
+                            <label class="" for="sex">性别:</label>
+                            <!--<input type="hidden" class="form-control input-sm" id="sex" name="sp" placeholder="请输入名称"/>-->
+                            <@dw.select id="e4_2" name="sex" code="sex" class="js-example-templating js-states form-control input-sm"></@dw.select>
+                        </div>
+                        <!--<div class="form-group">-->
+                        <!--<a class="btn btn-primary btn-sm" onclick="query()"><i class="fa fa-search" aria-hidden="true"></i></a>-->
+                        <!--</div>-->
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table id="commonTable" class="table table-striped table-hover text-nowrap">
+
+        <div id="toolbar" style="padding-left:8px;">
+            <@shiro.hasPermission name="admin:write">
+                <a class="btn btn-default btn-sm" onclick='deleteSelectRows();'><i class="fa fa-minus" aria-hidden="true"></i>&nbsp;删除选中</a>
+                <a class="btn btn-default btn-sm" onclick='addUser();'><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;添加用户</a>
+            </@shiro.hasPermission>
+            <div class="btn-group">
+                <a id="query" class="btn btn-default btn-sm" onclick="query();">
+                    <i class="fa fa-search" aria-hidden="true"></i>&nbsp;条件查询</a>
+            </div>
+            <a class="btn btn-default btn-sm" onclick='clean()'>
+                <i class="fa fa-close" aria-hidden="true"></i>
+                清空条件</a>
+        </div>
+
+    </table>
+</div>
+
+<script type="text/javascript">
+    //当前行
+    var curRow;
+    //选中行
+    var select_rows = new Array();
+
+    $(function () {
+        //回车查询
+        $("body").keydown(function () {
+            if (event.keyCode == "13") {//keyCode=13是回车键
+                $('#query').click();
+            }
+        });
+
+        var oTable = new TableInit();
+        oTable.Init();
+
+
+    });
+
+    var TableInit = function (deptId) {
+        var oTableInit = new Object();
+        //初始化Table
+        oTableInit.Init = function (deptId) {
+            $('#commonTable').bootstrapTable({
+                editable: true,						//EdiTable
+                url: '${rc.contextPath}/user/getUserList',         //请求后台的URL（*）
+                method: 'POST',                      //请求方式（*）
+                toolbar: '#toolbar',                //工具按钮用哪个容器
+                checkbox: true,							//显示复选框
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: true,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                queryParams: oTableInit.queryParams,//传递参数（*）
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageSize: 10,                       //每页的记录行数（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                paginationVAlign: "bottom",
+                pageList: [5, 10, 15, 20],        //可供选择的每页的行数（*）
+                search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                contentType: "application/x-www-form-urlencoded",
+                strictSearch: true,					//分页导航条位置
+                showColumns: true,                  //是否显示选择显示      列
+                showRefresh: false,                  //是否显示刷新按钮/
+                //showFooter:true,
+                minimumCountColumns: 2,             //最少允许的列数
+                //clickToSelect: true,                //是否启用点击选中行
+                //height: 700,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                //showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                   //是否显示父子表
+                //fixedColumns: true,
+                //fixedNumber: 2,
+                columns: [
+                    {
+                        field: 'checkbox',
+                        title: '多选',
+                        align: 'center',
+                        //width: 50,
+                        checkbox: true,
+                    }, {
+                        field: 'userName',
+                        title: '用户名',
+                        align: 'center'
+                    }, {
+                        field: 'realName',
+                        title: '姓名',
+                        align: 'center',
+                    }, {
+                        field: 'sex',
+                        title: '性别',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+                            var content = <@dw.selectMap code="sex"></@dw.selectMap>[value];
+                            if (content) {
+                                return content;
+                            }
+                            return null;
+                        }
+                    },{
+                        field: 'deptName',
+                        title: '部门',
+                        align: 'center'
+                    },  {
+                        field: 'phone',
+                        title: '座机',
+                        align: 'center'
+                    }, {
+                        field: 'mphone',
+                        title: '手机',
+                        align: 'center'
+                    }, {
+                        field: 'mail',
+                        title: '邮箱',
+                        align: 'center'
+                    }, {
+                        field: 'operatorName',
+                        title: '操作员',
+                        //width: 50,
+                        align: 'center',
+                    },  {
+                        field: 'locked',
+                        title: '锁住',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+                            if (row.locked == "0") return "否";
+                            return "是";
+                        }
+                    },{
+                        field: 'operate',
+                        title: '操作',
+                        align: 'center',
+                        //width: 200,
+                        formatter: operateFormatter //自定义方法，添加操作按钮
+                    }
+                ],
+                onClickRow: function (row, $element) {
+                    curRow = row;//
+                },
+                onLoadSuccess: function (aa, bb, cc) {
+                    //debugger;
+                }
+
+            });
+        };
+
+        //得到查询的参数
+        oTableInit.queryParams = function (params) {
+            var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                userName: $("#userName").val(),
+                realName: $("#realName").val(),
+                mphone: $("#mphone").val(),
+                sp: $("#sp").val(),
+                sex: $("#e4_2").val(),
+                pageSize: params.limit,   			//页面大小
+                currentPage: params.offset / params.limit + 1,
+                deptId: deptId
+            };
+            return temp;
+        };
+        return oTableInit;
+    };
+
+    // 添加选中行
+    $('#commonTable').on('check.bs.table', function (e, row) {
+        if (row != undefined) {
+            select_rows.push(row);
+        }
+    });
+
+    // 取消选中行
+    $('#commonTable').on('uncheck.bs.table', function (e, row) {
+        if (row != undefined) {
+            if (select_rows.length > 0) {
+                for (var n = 0; n < select_rows.length; n++) {
+                    if (select_rows[n] != undefined && row.userId == select_rows[n].userId) {
+                        delete select_rows[n]; // 删除元素并已undefined代替（方法固有）
+                    }
+                }
+            }
+        }
+        // 过滤掉因为delete 删除产生的undefined元素
+        select_rows = select_rows.filter(function (item) {
+            return item != undefined;
+        });
+    });
+    //查询
+    function query() {
+        if ($.isEmptyObject($("#userName").val() + $("#realName").val() + $("#sex").val() + $("#mphone").val() + $("#sp").val())) {
+            $("#commonTable").bootstrapTable('refresh');
+        }
+        else {
+            $("#commonTable").bootstrapTable('refresh');
+        }
+        $("#commonTable").bootstrapTable('refresh');
+    }
+    //伸缩按钮
+    function onCollapse() {
+        if ($('#collapseButton').attr('aria-expanded') == 'false') {
+            $('#collapseSpan').attr('class', 'fa fa-angle-double-up');
+        } else {
+            $('#collapseSpan').attr('class', 'fa fa-angle-double-down');
+        }
+    }
+    //清空
+    function clean() {
+        document.getElementById("searchForm").reset();
+        //query();
+    }
+    //修改用户
+    function updateUser(id) {
+        var index = layer.open({
+            type: 2,
+            title: '修改人员信息',
+            content: '${rc.contextPath}/user/updateUserPage?id=' + id,
+            maxmin: true,
+            shade: 0,
+            area: ['980px','300px'],
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                if ('true' == $('#layer_refresh').val()) {
+                    $('#layer_refresh').val('');
+                    $("#commonTable").bootstrapTable('refresh');
+                }
+            }
+        });
+       // layer.full(index);
+    }
+    //分配角色
+    function distributeRole(id) {
+        var index = layer.open({
+            type: 2,
+            title: '分配角色',
+            content: '${rc.contextPath}/user/distributeRolePage?id=' + id,
+            maxmin: true,
+            shade: 0,
+            area: ['700px', '360px'],
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                $("#commonTable").bootstrapTable('refresh');
+            }
+        });
+        layer.full(index);
+    }
+    //添加用户
+    function addUser() {
+        console.log(currDeptId);
+        if (currDeptId == 0) {
+            layer.alert("请选择一个部门后添加人员!");
+            return;
+        }
+        var index = layer.open({
+            type: 2,
+            title: '添加人员信息',
+            content: '${rc.contextPath}/user/addUserPage?deptId='+currDeptId,
+            area: ['980px','300px'],
+            maxmin: true,
+            shade: 0,
+            success: function (layero, index) {
+            },
+            end: function () {    //子页面销毁时回调的方法
+                if ('true' == $('#layer_refresh').val()) {
+                    $('#layer_refresh').val('');
+                    $("#commonTable").bootstrapTable('refresh');
+                }
+
+            }
+        });
+      //  layer.full(index);
+    }
+    //解锁
+    function unLock(userId, locked) {
+        if (locked == 0) {
+            layer.msg('当前用户未锁住!', {icon: 7});
+            return;
+        }
+        layer.confirm(
+            "确认?",
+            {icon: 2, title: "删除"},
+            function (index) {
+                layer.close(index);
+                var user;
+                user = JSON.parse('{"userId":"' + userId + '"}');
+                user = JSON.stringify(user);
+                var data = new AjaxRequest("/user/unLock", user).json().execute();
+                $("#commonTable").bootstrapTable('refresh');
+                if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+                layer.msg('解锁成功', {icon: 1});
+            }
+        );
+    }
+
+    //重置密码
+    function resetPassword (userId) {
+        layer.confirm(
+            "确认?",
+            {icon: 2, title: "重置密码"},
+            function (index) {
+                layer.close(index);
+                var data = new AjaxRequest("/user/resetPassword", {userId: userId}).execute();
+                $("#commonTable").bootstrapTable('refresh');
+                if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+                layer.msg('重置成功', {icon: 1});
+            }
+        );
+    }
+
+    //循环遍历结果集
+    //value: ?
+    //row:   当前行内容
+    //index: 当前行号
+    function operateFormatter(value, row, index) {//赋予的参数
+        var rowJson = JSON.stringify(row);
+        return [
+            '<a class="btn btn-primary btn-xs" style="margin-right: 3px;" onclick="updateUser(\'' + row.userId + '\')">编辑</a>',
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" onclick="distributeRole(\'' + row.userId + '\')">分配角色</a>',
+            '<a class="btn btn-primary btn-xs" style="margin-right: 3px;" onclick="unLock(\'' + row.userId + '\',\'' + row.locked + '\')">解锁</a>',
+            '<a class="btn btn-default btn-xs" style="margin-right: 3px;" onclick="resetPassword(\'' + row.userId + '\')">重置密码</a>',
+            '<a class="btn btn-primary btn-xs" style="margin-right: 3px;" onclick="deleteCurrentRow(\'' + row.userId + '\')">删除</a>'
+        ].join('');
+    }
+
+    //删除选中数据
+    function deleteSelectRows() {
+        var ids = new Array();//保存用户选择的数据的ID
+        var rows = $("#commonTable").bootstrapTable('getSelections');
+        if(rows.length == 0){
+            layer.msg("请勾选后删除!");
+            return;
+        }
+        //删除前确认
+        layer.confirm(
+            "确认?",
+            {icon: 2, title: "删除"},
+            function (index) {
+                layer.close(index);
+                for (var i = 0; i < rows.length; i++) {
+                    ids.push(JSON.parse('{"userId":"' + rows[i].userId + '"}'));
+                }
+                ids = JSON.stringify(ids);
+                var data = new AjaxRequest("/user/deleteUser", ids).json().execute();
+                $("#commonTable").bootstrapTable('refresh');
+                if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+            }
+        );
+        //删除前确认
+        /*layer.confirm(
+         "确认?",
+         {icon: 2, title: "删除"},
+         function (index) {
+         layer.close(index);
+         var ids = new Array();//保存用户选择的数据的ID
+         var rows = $("#commonTable").bootstrapTable('getSelections');
+         for (var i = 0; i < rows.length; i++) {
+         ids.push(JSON.parse('{"userId":"' + rows[i].userId + '"}'));
+         }
+         ids = JSON.stringify(ids);
+         var data = AjaxForJson("/user/deleteUser", ids);
+         $("#commonTable").bootstrapTable('refresh');
+         if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+         }
+         );*/
+    }
+    //删除单行数据
+    function deleteCurrentRow(id) {
+        //删除前确认
+        /*layer.msg('删除用户', {
+         time: 0 //不自动关闭
+         ,btn: ['确认', '取消']
+         ,yes: function(index){
+         layer.close(index);
+         var ids = new Array();
+         ids.push(JSON.parse('{"userId":"' + id + '"}'));
+         ids = JSON.stringify(ids);
+         var data = AjaxForJson("/user/deleteUser", ids);
+         $("#commonTable").bootstrapTable('refresh');
+         if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+         }
+         });*/
+        layer.confirm(
+            "确认?",
+            {icon: 2, title: "删除"},
+            function (index) {
+                layer.close(index);
+                //确认后的逻辑
+                var ids = new Array();
+                ids.push(JSON.parse('{"userId":"' + id + '"}'));
+                ids = JSON.stringify(ids);
+                var data = new AjaxRequest("/user/deleteUser", ids).json().execute();
+                $("#commonTable").bootstrapTable('refresh');
+                if (!$.isEmptyObject(data)) layer.msg(data, {icon: 1});
+            }
+        );
+    }
+    <!--   部门菜单   -->
+    var currDeptId = 0;
+    //部门树设置
+    var setting = {
+        data: {
+            simpleData: {
+                enable: true,
+                idKey: "deptId",
+                pIdKey: "pid"
+            },
+            key: {
+                name: "name",
+                url: "disable"
+            }
+
+        },
+        callback: {
+            onClick: zTreeOnClick
+        }
+    };
+
+    function zTreeOnClick(event, treeId, treeNode) {
+        currDeptId = treeNode.deptId;
+        $('#commonTable').bootstrapTable('destroy');
+        var oTable = new TableInit(treeNode.deptId);
+        oTable.Init();
+    }
+    function loadZtree() {
+        var root = {
+            children: null,
+            icon: "fa fa-cogs",
+            leafFlag: false,
+            name: "root",
+            deptId: "0",
+            pid: "root",
+            targetType: "iframe-tab",
+            url: null,
+            open: true
+        };
+        var depts = new AjaxRequest("/dept/listDepts", null).execute();
+        depts.push(root);
+        return $.fn.zTree.init($("#treeDemo"), setting, depts);
+    }
+    //页面初始化
+    $(document).ready(function () {
+        loadZtree();
+        var oTable = new TableInit(currDeptId);
+        oTable.Init();
+    });
+
+
+
+
+
+</script>
+</body>
+</html>

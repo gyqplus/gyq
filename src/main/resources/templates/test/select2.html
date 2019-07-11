@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <#include "${rc.contextPath}/frameImportFile.html"/>
+    <title>select2</title>
+</head>
+<body>
+<h1 style="text-align: center ">页面在templates/test</h1>
+<label for="e1_2">普通固定data</label>
+<select id="e1_2" class="js-example-templating js-states form-control">
+    <option></option>
+</select>
+<label for="e2_2">多选固定data</label>
+<select id="e2_2" class="js-example-templating js-states form-control">
+    <option></option>
+</select>
+<label for="e4_2">后台返回data</label>
+<select id="e4_2" class="js-example-templating js-states form-control">
+    <option></option>
+</select>
+<label for="e3_2">不初始option(适用于历史记录等场景)</label>
+<select class="form-control input-sm downList2" id="e3_2">
+    <option></option>
+</select>
+
+<script>
+    $(document).ready(function () {
+        var data;
+        data = new AjaxRequest('${rc.contextPath}/user/getUserList', {pageSize: 10, currentPage: 1}, null).execute();
+        var dataSelect2 = formatData(data);
+        $("#e1_2").select2({
+            placeholder: "请选择",
+            allowClear: true,
+            data: [{id: '0', text: 'story'}, {id: '1', text: 'bug'}, {id: 2, text: 'task'}]
+        });
+        $("#e2_2").select2({
+            placeholder: "请选择",
+            multiple: true,//多选
+            data: [{id: 0, text: 'story'}, {id: 1, text: 'bug'}, {id: 2, text: 'task'}],
+            createSearchChoice: function (term, data) {
+                if ($(data).filter(function () {
+                        return this.text.localeCompare(term) === 0;
+                    }).length === 0) {
+                    return {id: term, text: term};
+                }
+            }
+        });
+        //two AJAX获取数据方式(每次请求)
+        $("#e3_2").select2({
+            ajax: {
+                type: 'POST',
+                url: "${rc.contextPath}/test/getUserList",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        userName: params.term, // search term 请求参数 ， 请求框中输入的参数
+                        page: params.page
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    var itemList = [];//当数据对象不是{id:0,text:'ANTS'}这种形式的时候，可以使用类似此方法创建新的数组对象
+                    var arr = data;
+                    for (item in arr) {
+                        itemList.push({id: item, text: arr[item].userName})
+                    }
+                    return {
+                        results: itemList
+                    };
+                },
+                cache: true
+            },
+            placeholder: '请选择',//默认文字提示
+            language: "zh-CN",
+            tags: true,//允许手动添加
+            allowClear: true,//允许清空
+            escapeMarkup: function (markup) {
+                return markup;
+            }, // 自定义格式化防止xss注入
+            minimumInputLength: 1,//最少输入多少个字符后开始查询
+            formatResult: function formatRepo(repo) {
+                return repo.userName;
+            }, // 函数用来渲染结果
+            formatSelection: function formatRepoSelection(repo) {
+                return repo.userName;
+            } // 函数用于呈现当前的选择
+        });
+        $("#e4_2").select2({
+            placeholder: "Select report type",
+            allowClear: true,
+            data: dataSelect2.results
+        });
+    });
+    function formatData(data) {
+        var itemList = [];//当数据对象不是{id:0,text:'ANTS'}这种形式的时候，可以使用类似此方法创建新的数组对象
+        var arr = data;
+        for (item in arr) {
+            itemList.push({id: item, text: arr[item].userName})
+        }
+        return {
+            results: itemList,//itemList
+        };
+    }
+</script>
+</body>
+</html>
